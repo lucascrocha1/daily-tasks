@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "DailyTasks.Server": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

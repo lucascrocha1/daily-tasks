@@ -3,3 +3,5 @@
 ################################################################################
 
 /.vs
+/DailyTasks.Server/obj
+/DailyTasks.Server/bin/Debug/netcoreapp3.1
