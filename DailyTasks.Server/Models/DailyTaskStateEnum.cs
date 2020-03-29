@@ -1,6 +1,6 @@
 ﻿namespace DailyTasks.Server.Models
 {
-    public enum TaskStateEnum : int
+    public enum DailyTaskStateEnum : int
     {
         New = 1,
         Active = 2,

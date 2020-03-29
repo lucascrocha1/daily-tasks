@@ -39,14 +39,14 @@ namespace DailyTasks.Server
 			app.UseSwaggerUI(opts =>
 			{
 				opts.RoutePrefix = string.Empty;
-				opts.SwaggerEndpoint("/swagger/swagger.json", "DailyTasks.Server V1");
+				opts.SwaggerEndpoint("/swagger/v1/swagger.json", "DailyTasks.Server V1");
 			});
 
 			app.UseRouting();
 
 			app.UseEndpoints(endpoints =>
 			{
-				endpoints.MapControllerRoute("default", "api/{controller}/action/{Id?}");
+				endpoints.MapControllers();
 			});
 		}
 	}
