@@ -1,0 +1,64 @@
+calendar-component {
+  .month-name {
+    font-size: 20px;
+  }
+
+  .calendar {
+    border-left: 1px solid #fff275;
+    border-bottom: 1px solid #fff275;
+    border-right: 1px solid #fff275;
+    display: inline-block;
+    z-index: 1;
+    background-color: white;
+  }
+
+  .calendar-days {
+    margin-bottom: 8px;
+  }
+
+  .calendar-days span {
+    font-size: 20px;
+    margin-right: 16px;
+  }
+
+  .calendar-days-week {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .day {
+    margin-right: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+
+  .day-hidden {
+    margin-right: 12px;
+    margin-bottom: 8px;
+    visibility: hidden;
+  }
+
+  .calendar-days-weeks {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .img-arrow {
+    cursor: pointer;
+    height: 16px;
+  }
+
+  .months {
+    padding: 16px;
+  }
+
+  .month-changeable {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 16px;
+    background-color: #fff275;
+  }
+}

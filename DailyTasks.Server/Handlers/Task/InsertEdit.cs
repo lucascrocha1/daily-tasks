@@ -5,7 +5,8 @@
     using DailyTasks.Server.Infrastructure.Services.Mongo.Helper;
     using DailyTasks.Server.Models;
     using MediatR;
-    using MongoDB.Driver;
+	using MongoDB.Bson;
+	using MongoDB.Driver;
     using System;
 	using System.Collections.Generic;
 	using System.Linq;
@@ -69,9 +70,7 @@
                     await UpdateDocument(filter, dailyTask, collection, request);
                 }
                 else
-                {
                     await collection.InsertOneAsync(CreateDailyTask(request));
-                }
             }
 
             private DailyTask CreateDailyTask(Command request)
@@ -82,7 +81,7 @@
                     CreatedAt = DateTimeOffset.Now,
                     Date = request.Date.StartOfTheDay(),
                     Description = request.Description,
-                    State = DailyTaskStateEnum.New,
+                    State = request.State,
                     Items = new List<DailyTaskItem>()
                 };
 
@@ -93,7 +92,8 @@
                         ChangedAt = DateTimeOffset.Now,
                         CreatedAt = DateTimeOffset.Now,
                         Description = item.Description,
-                        Done = item.Done
+                        Done = item.Done,
+                        Id = ObjectId.GenerateNewId().ToString()
                     });
                 }
 
@@ -114,6 +114,7 @@
                 dailyTask.Date = request.Date.StartOfTheDay();
                 dailyTask.Description = request.Description;
                 dailyTask.State = request.State;
+                dailyTask.Date = request.Date.StartOfTheDay();
 
                 if (dailyTask.Items == null)
                     dailyTask.Items = new List<DailyTaskItem>();
@@ -127,7 +128,8 @@
                         ChangedAt = DateTimeOffset.Now,
                         CreatedAt = DateTimeOffset.Now,
                         Description = item.Description,
-                        Done = item.Done
+                        Done = item.Done,
+                        Id = ObjectId.GenerateNewId().ToString()
                     });
                 }
 

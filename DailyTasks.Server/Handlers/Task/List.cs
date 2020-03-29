@@ -24,11 +24,13 @@
         {
             public string Id { get; set; }
 
+            public DateTimeOffset CreatedAt { get; set; }
+
+            public DateTime Date { get; set; }
+
             public string Description { get; set; }
 
             public DailyTaskStateEnum State { get; set; }
-
-            public DateTimeOffset CreatedAt { get; set; }
 
             public int QuantityTasks { get; set; }
 
@@ -77,6 +79,7 @@
                     {
                         Id = e.Id,
                         State = e.State,
+                        Date = e.Date,
                         CreatedAt = e.CreatedAt,
                         Description = e.Description,
                         QuantityTasks = e.Items.Count(),

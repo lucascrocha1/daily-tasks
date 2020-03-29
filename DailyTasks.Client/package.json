@@ -1,0 +1,24 @@
+{
+  "name": "dailytasks",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Stencil App Starter",
+  "scripts": {
+    "build": "stencil build",
+    "start": "stencil build --dev --watch --serve",
+    "test": "stencil test --spec --e2e",
+    "test.watch": "stencil test --spec --e2e --watchAll",
+    "generate": "stencil generate"
+  },
+  "devDependencies": {
+    "@stencil/core": "^1.8.8",
+    "@stencil/router": "^1.0.1"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@popperjs/core": "^2.1.1",
+    "@stencil/sass": "^1.1.1",
+    "axios": "^0.19.2",
+    "qs": "^6.9.3"
+  }
+}

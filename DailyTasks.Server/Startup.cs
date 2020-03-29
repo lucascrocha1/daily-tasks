@@ -21,18 +21,24 @@ namespace DailyTasks.Server
 
 			services.AddSwaggerGen(opts =>
 			{
+				opts.CustomSchemaIds(e => e.FullName);
+
 				opts.SwaggerDoc("v1", new OpenApiInfo
 				{
 					Title = "DailyTasks.Server",
 					Version = "v1"
 				});
 			});
+
+			services.AddCors(opts => opts.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{
 			if (env.IsDevelopment())
 				app.UseDeveloperExceptionPage();
+
+			app.UseCors();
 
 			app.UseSwagger();
 

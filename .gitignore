@@ -5,3 +5,7 @@
 /.vs
 /DailyTasks.Server/obj
 /DailyTasks.Server/bin/Debug/netcoreapp3.1
+/DailyTasks.Client/obj
+/DailyTasks.Client/node_modules
+/DailyTasks.Client/.stencil
+/DailyTasks.Client/www

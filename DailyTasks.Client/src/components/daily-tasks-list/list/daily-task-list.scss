@@ -1,0 +1,47 @@
+daily-task-list {
+    .tasks {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding-left: 16px;
+        padding-right: 16px;        
+        margin-top: 16px;
+    }
+
+    .task {
+        min-height: 90px;
+        min-width: 250px;
+        padding: 16px;
+        margin-top: 8px;
+        position: relative;
+    }
+
+    .task-createt-at {
+        position: absolute;
+        bottom: 10px;
+    }
+
+    .task-quantity {
+        font-size: 14px;
+    }
+
+    .task-title {
+        font-size: 20px;
+        max-width: 250px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .task-to-do {
+        background-color: #D0D0D0;
+    }
+
+    .task-active {
+        background-color: #FFF7B3;
+    }
+
+    .task-closed {
+        background-color: #6AD8A1;
+    }
+}
