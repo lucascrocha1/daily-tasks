@@ -61,7 +61,6 @@
                 var collection = database.GetCollection<DailyTask>(nameof(DailyTask).Pluralize());
 
                 var filter = Builders<DailyTask>.Filter.Eq(e => e.Date, request.Date);
-                //var filter = Builders<DailyTask>.Filter.Eq(e => e.Description, "teste");
 
                 var documents = await collection.FindAsync(filter);
 
