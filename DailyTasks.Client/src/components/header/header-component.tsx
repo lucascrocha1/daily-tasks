@@ -1,6 +1,5 @@
-import { Component, h, State, Listen } from '@stencil/core';
+import { Component, h, State, Listen, Prop } from '@stencil/core';
 import { formatDate } from '../../utils/utils';
-import { createPopper } from '@popperjs/core';
 
 @Component({
     tag: 'header-component',
@@ -12,55 +11,63 @@ export class HeaderComponent {
 
     @State() calendarHidden: boolean = true;
 
+    @Prop() hideCalendar: boolean;
+
+    @Prop() showBackButton: boolean;
+
     goToRoot() {
         window.location.href = "/";
     }
 
-    @Listen('window:dayChanged') 
+    componentDidLoad() {
+        document.onclick = () => {
+            this.calendarHidden = true;
+        }
+    }
+
+    @Listen('window:dayChanged')
     dayChangedHandler(e: CustomEvent) {
         this.currentDate = e.detail;
 
         this.calendarHidden = true;
     }
 
-    openCalendar() {
-        if (!this.calendarHidden) {
-            this.calendarHidden = true;
-            return;
-        }
-        
-        let calendarOpener = document.querySelector('.calendar-date');
-        let calendar = document.querySelector('calendar-component');
+    openCloseCalendar(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
 
-        createPopper(calendarOpener, calendar, {
-            placement: 'bottom',
-            modifiers: [{
-                name: 'preventOverflow',
-                options: {
-                    boundary: calendarOpener
-                }
-            }]
-        });
+        this.calendarHidden = !this.calendarHidden;;
+    }
 
-        this.calendarHidden = false;
+    renderBackButton() {
+        return (
+            <div class="back-button" onClick={() => this.goToRoot()}>
+                <img class="img-back-button" src="/assets/svg/back.svg"></img>
+            </div>
+        )
     }
 
     render() {
         return [
             <div class="header-component">
-                <div class="title-clickable" onClick={() => this.goToRoot()}>
+                {this.showBackButton && this.renderBackButton()}
+                <div class={`title-clickable ${this.showBackButton && 'back-button-enabled'}`} onClick={() => this.goToRoot()}>
                     <span class="title">Daily Tasks</span>
                 </div>
-                <div class="calendar-date" onClick={() => this.openCalendar()}>
-                    <div>
-                        <span class="date-font">{formatDate(this.currentDate)}</span>
+                {
+                    !this.hideCalendar &&
+                    <div class="calendar-date" onClick={(e) => this.openCloseCalendar(e)}>
+                        <div class="hidden-mobile">
+                            <span class="date-font">{formatDate(this.currentDate)}</span>
+                        </div>
+                        <div class="calendar-image-background">
+                            <img class="calendar-image" src="/assets/svg/calendar.svg"></img>
+                        </div>
                     </div>
-                    <div class="calendar-image-background">
-                        <img class="calendar-image" src="/assets/svg/calendar.svg"></img>
-                    </div>
-                </div>
+                }
             </div>,
-            <calendar-component class="calendar-component" hidden={this.calendarHidden} role="tooltip"></calendar-component>
+            <calendar-component class={`calendar-component ${this.calendarHidden ? 'calendar-hidden' : 'calendar-open'}`} role="tooltip"></calendar-component>
         ];
     }
 }

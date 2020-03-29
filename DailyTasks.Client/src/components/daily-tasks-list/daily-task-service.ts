@@ -1,23 +1,31 @@
-import { IDailyTaskList, IDailyTaskInsertEdit } from '../../base/interface';
+import { IDailyTaskList, IDailyTaskInsertEdit, TaskState, TaskItemDto } from '../../base/interface';
 import axiosConfiguration from '../../base/axios-configuration';
 
 class DailyTaskService {
     axios = axiosConfiguration.getAxios();
 
-    async list(query: { date: Date, state?: number }) : Promise<IDailyTaskList[]> {
+    async list(query: { date: Date, state?: number }): Promise<IDailyTaskList[]> {
         return this.axios.get('api/Task/List', { params: query }).then(e => e.data);
     }
 
-    async get(query: { id: string }) : Promise<IDailyTaskInsertEdit> {
+    async get(query: { id: string }): Promise<IDailyTaskInsertEdit> {
         return this.axios.get('api/Task/Get', { params: query }).then(e => e.data);
     }
 
-    async edit(command: IDailyTaskList) {
-        return this.axios.put('api/Task/Edit', command);
+    async getTasks(query: { id: string }): Promise<TaskItemDto[]> {
+        return this.axios.get('api/Task/GetTasks', { params: query }).then(e => e.data);
     }
 
-    async insert(command: IDailyTaskList) {
-        return this.axios.post('api/Task/Insert', command);
+    async edit(command: IDailyTaskInsertEdit) {
+        await this.axios.put('api/Task/Edit', command);
+    }
+
+    async insert(command: IDailyTaskInsertEdit) {
+        await this.axios.post('api/Task/Insert', command);
+    }
+
+    async updateState(command: { id: string, state: TaskState }) {
+        await this.axios.post('api/task/UpdateState', command);
     }
 
     async delete(command: { taskId: string }) {

@@ -4,16 +4,23 @@ daily-task-list {
         flex-direction: row;
         justify-content: space-between;
         padding-left: 16px;
-        padding-right: 16px;        
+        padding-right: 16px;
         margin-top: 16px;
+        height: 100vh;
+    }
+
+    .dropzone-active {
+        background-color: #f3f3f3;
     }
 
     .task {
-        min-height: 90px;
+        height: 90px;
         min-width: 250px;
         padding: 16px;
         margin-top: 8px;
         position: relative;
+        cursor: pointer;
+        transition: 0.1s;
     }
 
     .task-createt-at {
@@ -34,14 +41,98 @@ daily-task-list {
     }
 
     .task-to-do {
-        background-color: #D0D0D0;
+        background-color: #d0d0d0;
+    }
+
+    .task-to-do:hover {
+        background-color: #b4b4b4;
     }
 
     .task-active {
-        background-color: #FFF7B3;
+        background-color: #fff7b3;
+    }
+
+    .task-active:hover {
+        background-color: #d6d094;
     }
 
     .task-closed {
-        background-color: #6AD8A1;
+        background-color: #6ad8a1;
+    }
+
+    .task-closed:hover {
+        background-color: #55ad81;
+    }
+
+    .title-background {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .img-down-arrow {
+        width: 16px;
+    }
+
+    .task:hover {
+        .btn-down-arrow {
+            display: block;
+        }
+    }
+
+    .btn-down-arrow {
+        mix-blend-mode: exclusion;
+        width: 16px;
+        height: 16px;
+        padding: 16px;
+        border-radius: 100%;
+        position: absolute;
+        bottom: -25px;
+        right: calc(50% - 16px);
+        cursor: pointer;
+        display: none;
+        z-index: 9;
+    }
+
+    .img-add-task {
+        width: 30px;
+    }
+
+    .task-self {
+        height: 100%;
+        min-width: 250px;
+        padding: 16px;
+        transition: .3s;
+    }
+
+    .img-more{
+        width: 16px;
+    }
+
+    .fab-task {
+        background-color: #fff275;
+        border-radius: 50px;
+        width: 30px;
+        padding: 12px;
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+
+    .fab-task:hover {
+        background-color: #dfd367;
+    }
+    
+    @media (max-width: 890px) {
+        .tasks {
+            margin-top: 8px;
+            flex-direction: column;
+        }
+
+        .task-self {
+            margin-top: 8px;
+        }
     }
 }

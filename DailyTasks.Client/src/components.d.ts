@@ -18,7 +18,10 @@ export namespace Components {
     'match': MatchResults;
   }
   interface DailyTaskList {}
-  interface HeaderComponent {}
+  interface HeaderComponent {
+    'hideCalendar': boolean;
+    'showBackButton': boolean;
+  }
 }
 
 declare global {
@@ -69,7 +72,10 @@ declare namespace LocalJSX {
     'match'?: MatchResults;
   }
   interface DailyTaskList {}
-  interface HeaderComponent {}
+  interface HeaderComponent {
+    'hideCalendar'?: boolean;
+    'showBackButton'?: boolean;
+  }
 
   interface IntrinsicElements {
     'app-root': AppRoot;

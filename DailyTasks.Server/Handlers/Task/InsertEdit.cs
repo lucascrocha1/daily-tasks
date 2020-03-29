@@ -63,6 +63,8 @@
 
                 var dailyTask = await task.FirstOrDefaultAsync();
 
+                RemoveUnusedTasks(request);
+
                 if (dailyTask != null)
                 {
                     MapChanges(dailyTask, request);
@@ -71,6 +73,11 @@
                 }
                 else
                     await collection.InsertOneAsync(CreateDailyTask(request));
+            }
+
+            private void RemoveUnusedTasks(Command request)
+            {
+                request.TaskItems = request.TaskItems.Where(e => !string.IsNullOrEmpty(e.Description)).ToArray();
             }
 
             private DailyTask CreateDailyTask(Command request)
@@ -119,6 +126,12 @@
                 if (dailyTask.Items == null)
                     dailyTask.Items = new List<DailyTaskItem>();
 
+                var requestTaskItemIds = request.TaskItems.Select(e => e.Id).Where(e => !string.IsNullOrEmpty(e));
+
+                var removedIds = dailyTask.Items.Where(e => !requestTaskItemIds.Contains(e.Id)).Select(e => e.Id);
+
+                dailyTask.Items = dailyTask.Items.Where(e => !removedIds.Contains(e.Id)).ToList();
+
                 var inserted = request.TaskItems.Where(e => string.IsNullOrEmpty(e.Id));
 
                 foreach (var item in inserted)
@@ -144,15 +157,6 @@
                     dailyTaskItem.Description = item.Description;
                     dailyTaskItem.Done = item.Done;
                     dailyTaskItem.ChangedAt = DateTimeOffset.Now;
-                }
-
-                var removed = request.TaskItems.Where(e => !string.IsNullOrEmpty(e.Id) && !dailyTaskItemsIds.Contains(e.Id));
-
-                foreach (var item in removed)
-                {
-                    var dailyTaskItem = dailyTask.Items.FirstOrDefault(e => e.Id == item.Id);
-
-                    dailyTask.Items.Remove(dailyTaskItem);
                 }
             }
         }

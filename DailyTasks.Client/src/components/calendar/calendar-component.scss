@@ -12,6 +12,14 @@ calendar-component {
     background-color: white;
   }
 
+  .selected-day {
+    background-color: tomato !important;
+  }
+
+  .current-day {
+    background-color: #e8e8e8;
+  }
+
   .calendar-days {
     margin-bottom: 8px;
   }
@@ -19,6 +27,7 @@ calendar-component {
   .calendar-days span {
     font-size: 20px;
     margin-right: 16px;
+    padding: 4px;
   }
 
   .calendar-days-week {
@@ -30,11 +39,13 @@ calendar-component {
     margin-right: 12px;
     margin-bottom: 8px;
     cursor: pointer;
+    padding: 4px;
   }
 
   .day-hidden {
     margin-right: 12px;
     margin-bottom: 8px;
+    padding: 4px;
     visibility: hidden;
   }
 

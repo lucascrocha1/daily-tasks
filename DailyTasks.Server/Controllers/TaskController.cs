@@ -49,6 +49,13 @@
         }
 
         [HttpPost]
+        [Route("UpdateState")]
+        public async Task UpdateState([FromBody]UpdateState.Command command)
+        {
+            await _mediator.Send(command);
+        }
+
+        [HttpPost]
         [Route("Delete")]
         public async Task Delete([FromBody]Delete.Command command)
         {

@@ -5,7 +5,8 @@ export interface IDailyTaskList {
     createdAt: string,
     date: Date,
     quantityTasks: number,
-    quantityTasksDone: number
+    quantityTasksDone: number,
+    taskItems: TaskItemDto[]
 }
 
 export interface IDailyTaskInsertEdit {

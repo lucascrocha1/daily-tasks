@@ -35,6 +35,17 @@
             public int QuantityTasks { get; set; }
 
             public int QuantityTasksDone { get; set; }
+
+            public TaskItemDto[] TaskItems { get; set; }
+        }
+
+        public class TaskItemDto
+        {
+            public string Id { get; set; }
+
+            public string Description { get; set; }
+
+            public bool Done { get; set; }
         }
 
         public class QueryHandler : IRequestHandler<Query, TaskDto[]>
@@ -83,7 +94,15 @@
                         CreatedAt = e.CreatedAt,
                         Description = e.Description,
                         QuantityTasks = e.Items.Count(),
-                        QuantityTasksDone = e.Items.Where(g => g.Done).Count()
+                        QuantityTasksDone = e.Items.Where(g => g.Done).Count(),
+                        TaskItems = e.Items
+                            .Select(g => new TaskItemDto
+                            {
+                                Id = g.Id,
+                                Done = g.Done,
+                                Description = g.Description
+                            })
+                            .ToArray()
                     })
                     .ToArray();
             }
