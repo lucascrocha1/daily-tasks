@@ -44,4 +44,15 @@ daily-task-list {
     .task-closed {
         background-color: #6AD8A1;
     }
+
+    @media (max-width: 544px) {
+        .tasks {
+            flex-direction: column;
+            margin-top: 8px;
+        }
+
+        .task-self {
+            margin-top: 8px;
+        }
+    }
 }

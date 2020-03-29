@@ -72,15 +72,15 @@ export class DailyTaskList {
 
         return [
             <div class="tasks">
-                <div>
+                <div class="task-self">
                     <span>To Do</span>
                     {toDo.map(e => this.renderState(e))}
                 </div>
-                <div>
+                <div class="task-self">
                     <span>Doing</span>
                     {doing.map(e => this.renderState(e))}
                 </div>
-                <div>
+                <div class="task-self">
                     <span>Done</span>
                     {done.map(e => this.renderState(e))}
                 </div>

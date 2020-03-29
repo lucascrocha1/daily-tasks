@@ -1,43 +1,57 @@
 header-component {
-    .header-component {
-        height: 60px;
-        background-color: #FFF275;
-        box-shadow: 0px 6px 5px 0px rgba(0,0,0,0.08);
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        padding-left: 16px;
-        padding-right: 16px;
-        align-items: center;
-    }
+  .header-component {
+    height: 60px;
+    background-color: #fff275;
+    box-shadow: 0px 6px 5px 0px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-left: 16px;
+    padding-right: 16px;
+    align-items: center;
+  }
 
-    .title {
-        font-size: 24px;
-    }
+  .title {
+    font-size: 24px;
+  }
 
-    .title-clickable {
-        cursor: pointer;
-    }
+  .title-clickable {
+    cursor: pointer;
+  }
 
-    .calendar-image {
-        height: 24px;
-    }
+  .calendar-image {
+    height: 24px;
+  }
 
-    .calendar-image-background {
-        margin-left: 16px;
-    }
+  .calendar-image-background {
+    margin-left: 16px;
+  }
 
-    .calendar-date {
-        display: flex;
-        flex-direction: row;
-        cursor: pointer;
-    }
+  .calendar-date {
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+  }
 
-    .calendar-component {
-        z-index: 1;
-    }
+  .calendar-component {
+    z-index: 1;
+  }
 
-    .date-font {
-        font-size: 20px;
+  .calendar-hidden {
+    display: none;
+  }
+
+  .calendar-open {
+    display: block;
+  }
+
+  .date-font {
+    font-size: 20px;
+  }
+
+  @media (max-width: 544px) {
+    .hidden-mobile {
+        display: none;
     }
+  }
 }

@@ -11,11 +11,17 @@ export class CalendarComponent {
 
     @State() currentYear = new Date().getFullYear();
 
+    @State() currentDay = new Date().getDate();
+
     @State() numberOfDaysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
 
     months = calendarService.getMonths();
 
-    changeDate(increment: number) {
+    changeDate(e, increment: number) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
         this.currentMonth += increment;
 
         if (this.currentMonth > 12) {
@@ -38,6 +44,8 @@ export class CalendarComponent {
     setCurrentDay(e) {
         let day = +e.srcElement.id;
 
+        this.currentDay = day;
+
         let date = new Date(this.currentYear, this.currentMonth - 1, day);
 
         let evt = new CustomEvent('dayChanged', { detail : date});
@@ -58,28 +66,29 @@ export class CalendarComponent {
 
         while (i <= this.numberOfDaysInMonth) {
             let dayOfTheWeek = new Date(this.currentYear, this.currentMonth - 1, i).getDay();
+            let currentDay = this.currentDay == i;
             
             switch (dayOfTheWeek) {
                 case 0:
-                    resultSunday.push(<span id={`${i}`} class="day" onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
+                    resultSunday.push(<span id={`${i}`} class={`day ${currentDay && 'current-day'}`} onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
                     break;
                 case 1:
-                    resultMonday.push(<span id={`${i}`} class="day" onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
+                    resultMonday.push(<span id={`${i}`} class={`day ${currentDay && 'current-day'}`} onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
                     break;
                 case 2:
-                    resultTuesday.push(<span id={`${i}`} class="day" onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
+                    resultTuesday.push(<span id={`${i}`} class={`day ${currentDay && 'current-day'}`} onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
                     break;
                 case 3:
-                    resultWednesday.push(<span id={`${i}`} class="day" onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
+                    resultWednesday.push(<span id={`${i}`} class={`day ${currentDay && 'current-day'}`} onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
                     break;
                 case 4:
-                    resultThursday.push(<span id={`${i}`} class="day" onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
+                    resultThursday.push(<span id={`${i}`} class={`day ${currentDay && 'current-day'}`} onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
                     break;
                 case 5:
-                    resultFriday.push(<span id={`${i}`} class="day" onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
+                    resultFriday.push(<span id={`${i}`} class={`day ${currentDay && 'current-day'}`} onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
                     break;
                 case 6:
-                    resultSaturday.push(<span id={`${i}`} class="day" onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
+                    resultSaturday.push(<span id={`${i}`} class={`day ${currentDay && 'current-day'}`} onClick={(e) => this.setCurrentDay(e)}>{i}</span>)
                     break;
             }
 
@@ -149,9 +158,9 @@ export class CalendarComponent {
         return (
             <div class="calendar">
                 <div class="month-changeable">
-                    <img class="img-arrow" decoding="async" src="/assets/svg/left-arrow.svg" onClick={() => this.changeDate(-1)}></img>
+                    <img class="img-arrow" decoding="async" src="/assets/svg/left-arrow.svg" onClick={(e) => this.changeDate(e, -1)}></img>
                     <span class="month-name">{this.renderCurrentMonthName()} - {this.currentYear}</span>
-                    <img class="img-arrow" decoding="async" src="/assets/svg/right-arrow.svg" onClick={() => this.changeDate(+1)}></img>
+                    <img class="img-arrow" decoding="async" src="/assets/svg/right-arrow.svg" onClick={(e) => this.changeDate(e, +1)}></img>
                 </div>
                 <div class="months">
                     <div class="calendar-days">

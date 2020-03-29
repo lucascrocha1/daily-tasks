@@ -1,6 +1,5 @@
 import { Component, h, State, Listen } from '@stencil/core';
 import { formatDate } from '../../utils/utils';
-import { createPopper } from '@popperjs/core';
 
 @Component({
     tag: 'header-component',
@@ -16,6 +15,12 @@ export class HeaderComponent {
         window.location.href = "/";
     }
 
+    componentDidLoad() {
+        document.onclick = () => {
+            this.calendarHidden = true;
+        }
+    }
+
     @Listen('window:dayChanged') 
     dayChangedHandler(e: CustomEvent) {
         this.currentDate = e.detail;
@@ -23,26 +28,12 @@ export class HeaderComponent {
         this.calendarHidden = true;
     }
 
-    openCalendar() {
-        if (!this.calendarHidden) {
-            this.calendarHidden = true;
-            return;
-        }
-        
-        let calendarOpener = document.querySelector('.calendar-date');
-        let calendar = document.querySelector('calendar-component');
+    openCloseCalendar(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
 
-        createPopper(calendarOpener, calendar, {
-            placement: 'bottom',
-            modifiers: [{
-                name: 'preventOverflow',
-                options: {
-                    boundary: calendarOpener
-                }
-            }]
-        });
-
-        this.calendarHidden = false;
+        this.calendarHidden = !this.calendarHidden;;
     }
 
     render() {
@@ -51,8 +42,8 @@ export class HeaderComponent {
                 <div class="title-clickable" onClick={() => this.goToRoot()}>
                     <span class="title">Daily Tasks</span>
                 </div>
-                <div class="calendar-date" onClick={() => this.openCalendar()}>
-                    <div>
+                <div class="calendar-date" onClick={(e) => this.openCloseCalendar(e)}>
+                    <div class="hidden-mobile">
                         <span class="date-font">{formatDate(this.currentDate)}</span>
                     </div>
                     <div class="calendar-image-background">
@@ -60,7 +51,7 @@ export class HeaderComponent {
                     </div>
                 </div>
             </div>,
-            <calendar-component class="calendar-component" hidden={this.calendarHidden} role="tooltip"></calendar-component>
+            <calendar-component class={`calendar-component ${this.calendarHidden ? 'calendar-hidden' : 'calendar-open'}`} role="tooltip"></calendar-component>
         ];
     }
 }

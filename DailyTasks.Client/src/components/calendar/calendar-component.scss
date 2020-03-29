@@ -10,6 +10,12 @@ calendar-component {
     display: inline-block;
     z-index: 1;
     background-color: white;
+    position: absolute;
+    right: 0;
+  }
+
+  .current-day {
+    background-color: tomato;
   }
 
   .calendar-days {
@@ -19,6 +25,7 @@ calendar-component {
   .calendar-days span {
     font-size: 20px;
     margin-right: 16px;
+    padding: 4px;
   }
 
   .calendar-days-week {
@@ -30,11 +37,13 @@ calendar-component {
     margin-right: 12px;
     margin-bottom: 8px;
     cursor: pointer;
+    padding: 4px;
   }
 
   .day-hidden {
     margin-right: 12px;
     margin-bottom: 8px;
+    padding: 4px;
     visibility: hidden;
   }
 
