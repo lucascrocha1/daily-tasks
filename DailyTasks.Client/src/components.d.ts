@@ -10,6 +10,9 @@ import { HTMLStencilElement, JSXBase } from '@stencil/core/internal';
 import {
   MatchResults,
 } from '@stencil/router';
+import {
+  IDailyTaskList,
+} from './base/interface';
 
 export namespace Components {
   interface AppRoot {}
@@ -18,6 +21,10 @@ export namespace Components {
     'match': MatchResults;
   }
   interface DailyTaskList {}
+  interface DailyTaskOptions {
+    'openClose': (e: any) => Promise<void>;
+    'task': IDailyTaskList;
+  }
   interface HeaderComponent {
     'hideCalendar': boolean;
     'showBackButton': boolean;
@@ -51,6 +58,12 @@ declare global {
     new (): HTMLDailyTaskListElement;
   };
 
+  interface HTMLDailyTaskOptionsElement extends Components.DailyTaskOptions, HTMLStencilElement {}
+  var HTMLDailyTaskOptionsElement: {
+    prototype: HTMLDailyTaskOptionsElement;
+    new (): HTMLDailyTaskOptionsElement;
+  };
+
   interface HTMLHeaderComponentElement extends Components.HeaderComponent, HTMLStencilElement {}
   var HTMLHeaderComponentElement: {
     prototype: HTMLHeaderComponentElement;
@@ -61,6 +74,7 @@ declare global {
     'calendar-component': HTMLCalendarComponentElement;
     'daily-task-insert-edit': HTMLDailyTaskInsertEditElement;
     'daily-task-list': HTMLDailyTaskListElement;
+    'daily-task-options': HTMLDailyTaskOptionsElement;
     'header-component': HTMLHeaderComponentElement;
   }
 }
@@ -72,6 +86,10 @@ declare namespace LocalJSX {
     'match'?: MatchResults;
   }
   interface DailyTaskList {}
+  interface DailyTaskOptions {
+    'onTaskRemoved'?: (event: CustomEvent<any>) => void;
+    'task'?: IDailyTaskList;
+  }
   interface HeaderComponent {
     'hideCalendar'?: boolean;
     'showBackButton'?: boolean;
@@ -82,6 +100,7 @@ declare namespace LocalJSX {
     'calendar-component': CalendarComponent;
     'daily-task-insert-edit': DailyTaskInsertEdit;
     'daily-task-list': DailyTaskList;
+    'daily-task-options': DailyTaskOptions;
     'header-component': HeaderComponent;
   }
 }
@@ -96,6 +115,7 @@ declare module "@stencil/core" {
       'calendar-component': LocalJSX.CalendarComponent & JSXBase.HTMLAttributes<HTMLCalendarComponentElement>;
       'daily-task-insert-edit': LocalJSX.DailyTaskInsertEdit & JSXBase.HTMLAttributes<HTMLDailyTaskInsertEditElement>;
       'daily-task-list': LocalJSX.DailyTaskList & JSXBase.HTMLAttributes<HTMLDailyTaskListElement>;
+      'daily-task-options': LocalJSX.DailyTaskOptions & JSXBase.HTMLAttributes<HTMLDailyTaskOptionsElement>;
       'header-component': LocalJSX.HeaderComponent & JSXBase.HTMLAttributes<HTMLHeaderComponentElement>;
     }
   }

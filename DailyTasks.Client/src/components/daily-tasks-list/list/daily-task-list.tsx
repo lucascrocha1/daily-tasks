@@ -10,9 +10,9 @@ import { formatDateString } from '../../../utils/utils';
 export class DailyTaskList {
     @State() state: IDailyTaskList[];
 
-    hammerRegistered: boolean = false;
-
     dateFilter: Date = new Date();
+
+    taskOptionsController: HTMLDailyTaskOptionsElement;
 
     componentWillLoad() {
         this.loadState();
@@ -25,7 +25,14 @@ export class DailyTaskList {
         await this.loadState();
     }
 
+    @Listen('taskRemoved')
+    async taskRemovedHandler() {
+        await this.loadState();
+    }
+
     async loadState() {
+        this.state = null;
+        
         this.state = await dailyTaskService.list({ date: this.dateFilter, state: null });
     }
 
@@ -45,7 +52,6 @@ export class DailyTaskList {
     }
 
     async onDrop(e) {
-        console.log(e);
         let id = e.dataTransfer.getData('text');
 
         let element = document.getElementById(id);
@@ -71,17 +77,24 @@ export class DailyTaskList {
         e.stopPropagation();
         e.stopImmediatePropagation();
 
-
+        this.taskOptionsController.task = task;
+        this.taskOptionsController.openClose(e);
     }
 
-    async expandOptions(e, task: IDailyTaskList) {
+    async expandTasks(e, taskItemId: string, taskImageId: string) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
 
-        let tasks = await dailyTaskService.getTasks({ id: task.id });
+        let element = document.getElementById(taskItemId) as HTMLDivElement;
+        element.hidden = !element.hidden;
 
-        
+        let img = document.getElementById(taskImageId) as HTMLImageElement;
+
+        if (element.hidden)
+            img.src = img.src.replace('up', 'down');
+        else
+            img.src = img.src.replace('down', 'up');
     }
 
     getTaskColor(state: TaskState) {
@@ -97,15 +110,58 @@ export class DailyTaskList {
         }
     }
 
-    renderTaskItems(e: TaskItemDto) {
+    getBorderColor(state: TaskState) {
+        switch (state) {
+            case TaskState.New:
+                return "border-to-do";
+            case TaskState.Active:
+                return "border-active";
+            case TaskState.Closed:
+                return "border-closed";
+            default:
+                return "border-to-do";
+        }
+    }
+
+    renderImageDownOption(taskImageId: string, state: TaskState) {
+        switch (state) {
+            case TaskState.New:
+                return <img id={taskImageId} class="img-down-arrow" src="/assets/svg/btn-down-grey.svg"></img>
+            case TaskState.Active:
+                return <img id={taskImageId} class="img-down-arrow" src="/assets/svg/btn-down-yellow.svg"></img>
+            case TaskState.Closed:
+                return <img id={taskImageId} class="img-down-arrow" src="/assets/svg/btn-down-green.svg"></img>
+            default:
+                return <img id={taskImageId} class="img-down-arrow" src="/assets/svg/btn-down-grey.svg"></img>
+        }
+    }
+
+    getImageUpOption(state: TaskState) {
+        switch (state) {
+            case TaskState.New:
+                return "/assets/svg/btn-down-grey.svg"
+            case TaskState.Active:
+                return "/assets/svg/btn-down-yellow.svg"
+            case TaskState.Closed:
+                return "/assets/svg/btn-down-green.svg"
+            default:
+                return "/assets/svg/btn-down-grey.svg"
+        }
+    }
+
+    renderTaskItems(task: TaskItemDto, state: TaskState) {
         return (
-            <div>
-                {e.description}
+            <div class={`task-item-inner ${this.getBorderColor(state)}`}>
+                <span>{task.description}</span>
+                {task.done && <img class="check-task-done" src="/assets/svg/check.svg"></img>}
             </div>
         )
     }
 
     renderState(task: IDailyTaskList) {
+        let taskItemId = `task-item-${task.id}`;
+        let taskImageId = `task-image-${task.id}`;
+
         return [
             <div id={task.id}
                 title={task.description}
@@ -117,7 +173,7 @@ export class DailyTaskList {
                     <div class="task-title">
                         {task.description}
                     </div>
-                    <div onClick={(e) => this.openMoreOptions(e, task)}>
+                    <div class="btn-more-background" onClick={(e) => this.openMoreOptions(e, task)}>
                         <img title="More" class="img-more" src="/assets/svg/more.svg"></img>
                     </div>
                 </div>
@@ -131,12 +187,12 @@ export class DailyTaskList {
                         Criado em {formatDateString(task.createdAt)}
                     </span>
                 </div>
-                <div title="Options" class="btn-down-arrow" onClick={e => this.expandOptions(e, task)}>
-                    <img class="img-down-arrow" src="/assets/svg/down-arrow.svg"></img>
+                <div title="Options" class="btn-down-arrow" onClick={e => this.expandTasks(e, taskItemId, taskImageId)}>
+                    {this.renderImageDownOption(taskImageId, task.state)}
                 </div>
             </div>,
-            <div>
-                {task.taskItems.map(e => this.renderTaskItems(e))}
+            <div id={taskItemId} hidden class="task-items-background">
+                {task.taskItems.map(e => this.renderTaskItems(e, task.state))}
             </div>
         ];
     }
@@ -192,7 +248,8 @@ export class DailyTaskList {
                     {done.map(e => this.renderState(e))}
                 </div>
             </div>,
-            this.renderFabAddTask()
+            this.renderFabAddTask(),
+            <daily-task-options ref={e => this.taskOptionsController = e as any}></daily-task-options>,
         ]
     }
 }

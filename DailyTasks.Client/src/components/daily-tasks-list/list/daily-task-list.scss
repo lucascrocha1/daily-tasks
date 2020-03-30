@@ -70,42 +70,65 @@ daily-task-list {
         justify-content: space-between;
     }
 
-    .img-down-arrow {
-        width: 16px;
+    .btn-more-background {
+        padding: 8px;
+        position: absolute;
+        right: 0;
+        border-radius: 100%;
+        transition: 0.3s;
     }
 
-    .task:hover {
-        .btn-down-arrow {
-            display: block;
-        }
+    .btn-more-background:hover {
+        transform: scale(1.2);
+    }
+
+    .check-task-done {
+        width: 18px;
     }
 
     .btn-down-arrow {
-        mix-blend-mode: exclusion;
-        width: 16px;
-        height: 16px;
-        padding: 16px;
         border-radius: 100%;
         position: absolute;
-        bottom: -25px;
+        bottom: -29px;
         right: calc(50% - 16px);
         cursor: pointer;
-        display: none;
         z-index: 9;
     }
 
+    .border-to-do {        
+        border: 1px solid #d0d0d0;
+        border-top: none;
+    }
+
+    .border-active {        
+        border: 1px solid #fff7b3;
+        border-top: none;
+    }
+
+    .border-closed {        
+        border: 1px solid #6ad8a1;
+        border-top: none;
+    }
+    
     .img-add-task {
         width: 30px;
+    }
+
+    .task-item-inner {
+        padding: 8px;
+        padding-left: 16px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
     }
 
     .task-self {
         height: 100%;
         min-width: 250px;
-        padding: 16px;
-        transition: .3s;
+        transition: 0.3s;
     }
 
-    .img-more{
+    .img-more {
         width: 16px;
     }
 
@@ -124,7 +147,7 @@ daily-task-list {
     .fab-task:hover {
         background-color: #dfd367;
     }
-    
+
     @media (max-width: 890px) {
         .tasks {
             margin-top: 8px;
@@ -132,6 +155,7 @@ daily-task-list {
         }
 
         .task-self {
+            padding: unset;
             margin-top: 8px;
         }
     }

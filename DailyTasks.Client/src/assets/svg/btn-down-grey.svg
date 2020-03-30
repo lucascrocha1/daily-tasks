@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="25" viewBox="0 0 50 25">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Retângulo_36" data-name="Retângulo 36" width="50" height="25" transform="translate(843 602)" fill="#fff"/>
+    </clipPath>
+  </defs>
+  <g id="Grupo_34" data-name="Grupo 34" transform="translate(-736 -627)">
+    <g id="Grupo_de_máscara_3" data-name="Grupo de máscara 3" transform="translate(1629 1254) rotate(180)" clip-path="url(#clip-path)">
+      <path id="Caminho_3" data-name="Caminho 3" d="M25,0A25,25,0,1,1,0,25,25,25,0,0,1,25,0Z" transform="translate(843 602)" fill="#d0d0d0"/>
+    </g>
+    <g id="down-arrow" transform="translate(753 533.7)">
+      <g id="Grupo_31" data-name="Grupo 31" transform="translate(0 100.698)">
+        <path id="Caminho_2" data-name="Caminho 2" d="M15.744,101.5l-.524-.536a.868.868,0,0,0-1.238,0L8,107.039l-5.985-6.081a.868.868,0,0,0-1.238,0l-.524.533a.9.9,0,0,0,0,1.258l7.126,7.267A.888.888,0,0,0,8,110.3h0a.888.888,0,0,0,.619-.285l7.12-7.247a.906.906,0,0,0,.256-.635A.9.9,0,0,0,15.744,101.5Z" transform="translate(0 -100.698)"/>
+      </g>
+    </g>
+  </g>
+</svg>

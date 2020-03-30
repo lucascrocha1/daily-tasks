@@ -1,0 +1,33 @@
+daily-task-options {
+    .svg-item {
+        width: 16px;
+    }
+    
+    .options {
+        background-color: white;
+        display: none;
+        position: absolute;
+        min-width: 300px;
+        z-index: 11;
+        padding: 16px;
+        border: 1px solid #cecece;
+    }
+
+    .show {
+        display: block;
+    }
+
+    .options-item {
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px;
+        border-bottom: 1px solid #cecece;
+    }
+
+    .options-item:hover {
+        background-color: #f4f4f4;
+    }
+}

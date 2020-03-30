@@ -63,6 +63,8 @@
 
                 var dailyTask = await task.FirstOrDefaultAsync();
 
+                request.Date = request.Date.AddHours(-3);
+
                 RemoveUnusedTasks(request);
 
                 if (dailyTask != null)
