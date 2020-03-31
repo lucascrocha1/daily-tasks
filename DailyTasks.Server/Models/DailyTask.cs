@@ -14,7 +14,7 @@
 
         public DailyTaskStateEnum State { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTimeOffset Date { get; set; }
 
         public List<DailyTaskItem> Items { get; set; }
 

@@ -29,6 +29,11 @@ export namespace Components {
     'hideCalendar': boolean;
     'showBackButton': boolean;
   }
+  interface LoaderComponent {
+    'dismiss': () => Promise<void>;
+    'show': () => Promise<void>;
+  }
+  interface SpinnerComponent {}
 }
 
 declare global {
@@ -69,6 +74,18 @@ declare global {
     prototype: HTMLHeaderComponentElement;
     new (): HTMLHeaderComponentElement;
   };
+
+  interface HTMLLoaderComponentElement extends Components.LoaderComponent, HTMLStencilElement {}
+  var HTMLLoaderComponentElement: {
+    prototype: HTMLLoaderComponentElement;
+    new (): HTMLLoaderComponentElement;
+  };
+
+  interface HTMLSpinnerComponentElement extends Components.SpinnerComponent, HTMLStencilElement {}
+  var HTMLSpinnerComponentElement: {
+    prototype: HTMLSpinnerComponentElement;
+    new (): HTMLSpinnerComponentElement;
+  };
   interface HTMLElementTagNameMap {
     'app-root': HTMLAppRootElement;
     'calendar-component': HTMLCalendarComponentElement;
@@ -76,6 +93,8 @@ declare global {
     'daily-task-list': HTMLDailyTaskListElement;
     'daily-task-options': HTMLDailyTaskOptionsElement;
     'header-component': HTMLHeaderComponentElement;
+    'loader-component': HTMLLoaderComponentElement;
+    'spinner-component': HTMLSpinnerComponentElement;
   }
 }
 
@@ -87,13 +106,15 @@ declare namespace LocalJSX {
   }
   interface DailyTaskList {}
   interface DailyTaskOptions {
-    'onTaskRemoved'?: (event: CustomEvent<any>) => void;
+    'onTaskUpdatedEvent'?: (event: CustomEvent<any>) => void;
     'task'?: IDailyTaskList;
   }
   interface HeaderComponent {
     'hideCalendar'?: boolean;
     'showBackButton'?: boolean;
   }
+  interface LoaderComponent {}
+  interface SpinnerComponent {}
 
   interface IntrinsicElements {
     'app-root': AppRoot;
@@ -102,6 +123,8 @@ declare namespace LocalJSX {
     'daily-task-list': DailyTaskList;
     'daily-task-options': DailyTaskOptions;
     'header-component': HeaderComponent;
+    'loader-component': LoaderComponent;
+    'spinner-component': SpinnerComponent;
   }
 }
 
@@ -117,6 +140,8 @@ declare module "@stencil/core" {
       'daily-task-list': LocalJSX.DailyTaskList & JSXBase.HTMLAttributes<HTMLDailyTaskListElement>;
       'daily-task-options': LocalJSX.DailyTaskOptions & JSXBase.HTMLAttributes<HTMLDailyTaskOptionsElement>;
       'header-component': LocalJSX.HeaderComponent & JSXBase.HTMLAttributes<HTMLHeaderComponentElement>;
+      'loader-component': LocalJSX.LoaderComponent & JSXBase.HTMLAttributes<HTMLLoaderComponentElement>;
+      'spinner-component': LocalJSX.SpinnerComponent & JSXBase.HTMLAttributes<HTMLSpinnerComponentElement>;
     }
   }
 }

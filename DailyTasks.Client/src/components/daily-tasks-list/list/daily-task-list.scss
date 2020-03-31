@@ -6,7 +6,7 @@ daily-task-list {
         padding-left: 16px;
         padding-right: 16px;
         margin-top: 16px;
-        height: 100vh;
+        height: calc(100vh - 113px);
     }
 
     .dropzone-active {
@@ -17,10 +17,14 @@ daily-task-list {
         height: 90px;
         min-width: 250px;
         padding: 16px;
-        margin-top: 8px;
+        margin-top: 32px;
         position: relative;
         cursor: pointer;
         transition: 0.1s;
+    }
+
+    .center-spinner {
+        margin-top: 16px;
     }
 
     .task-createt-at {
@@ -34,6 +38,13 @@ daily-task-list {
 
     .task-title {
         font-size: 20px;
+        max-width: 250px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .task-item-inner-title {
         max-width: 250px;
         overflow: hidden;
         white-space: nowrap;
@@ -89,27 +100,27 @@ daily-task-list {
     .btn-down-arrow {
         border-radius: 100%;
         position: absolute;
-        bottom: -29px;
+        bottom: -32px;
         right: calc(50% - 16px);
         cursor: pointer;
         z-index: 9;
     }
 
-    .border-to-do {        
+    .border-to-do {
         border: 1px solid #d0d0d0;
         border-top: none;
     }
 
-    .border-active {        
+    .border-active {
         border: 1px solid #fff7b3;
         border-top: none;
     }
 
-    .border-closed {        
+    .border-closed {
         border: 1px solid #6ad8a1;
         border-top: none;
     }
-    
+
     .img-add-task {
         width: 30px;
     }
@@ -126,6 +137,8 @@ daily-task-list {
         height: 100%;
         min-width: 250px;
         transition: 0.3s;
+        padding: 16px;
+        padding-bottom: 0;
     }
 
     .img-more {
@@ -146,6 +159,26 @@ daily-task-list {
 
     .fab-task:hover {
         background-color: #dfd367;
+    }
+
+    .options-img {
+        transition: .3s;
+        width: 16px;
+    }
+
+    .options-btn {
+        height: 32px;
+        width: 64px;
+        border-bottom-left-radius: 128px;
+        border-bottom-right-radius: 128px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: .3s;
+    }
+
+    .btn-options-open {
+        transform: rotate(180deg);
     }
 
     @media (max-width: 890px) {

@@ -12,14 +12,9 @@
             return $"{word}s";
         }
 
-        public static DateTime StartOfTheDay(this DateTime source)
+        public static DateTimeOffset StartOfTheDay(this DateTimeOffset source)
         {
-            return new DateTime(source.Year, source.Month, source.Day, 0, 0, 0, 0, DateTimeKind.Utc);
-        }
-
-        public static DateTime EndOfTheDay(this DateTime source)
-        {
-            return new DateTime(source.Year, source.Month, source.Day, 23, 59, 59, 999, DateTimeKind.Utc);
+            return new DateTimeOffset(source.Year, source.Month, source.Day, 0, 0, 0, 0, source.Offset);
         }
     }
 }

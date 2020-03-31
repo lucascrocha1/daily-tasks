@@ -61,5 +61,12 @@
         {
             await _mediator.Send(command);
         }
+
+        [HttpPost]
+        [Route("SetAllTasksDone")]
+        public async Task SetAllTasksDone([FromBody]SetAllTasksDone.Command command)
+        {
+            await _mediator.Send(command);
+        }
     }
 }

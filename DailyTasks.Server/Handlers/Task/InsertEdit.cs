@@ -21,7 +21,7 @@
 
             public string Description { get; set; }
 
-            public DateTime Date { get; set; }
+            public DateTimeOffset Date { get; set; }
 
             public TaskItemsDto[] TaskItems { get; set; }
 
@@ -62,8 +62,6 @@
                 var task = await collection.FindAsync(filter);
 
                 var dailyTask = await task.FirstOrDefaultAsync();
-
-                request.Date = request.Date.AddHours(-3);
 
                 RemoveUnusedTasks(request);
 
@@ -123,7 +121,6 @@
                 dailyTask.Date = request.Date.StartOfTheDay();
                 dailyTask.Description = request.Description;
                 dailyTask.State = request.State;
-                dailyTask.Date = request.Date.StartOfTheDay();
 
                 if (dailyTask.Items == null)
                     dailyTask.Items = new List<DailyTaskItem>();

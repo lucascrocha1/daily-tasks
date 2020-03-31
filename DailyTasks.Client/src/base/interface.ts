@@ -12,7 +12,7 @@ export interface IDailyTaskList {
 export interface IDailyTaskInsertEdit {
     id: string,
     description: string,
-    date: Date,
+    date: string,
     taskItems: TaskItemDto[],
     state: TaskState
 }

@@ -2,6 +2,7 @@ import { Component, h, Prop, State, Listen } from '@stencil/core';
 import { IDailyTaskInsertEdit, TaskState, TaskItemDto } from '../../../base/interface';
 import dailyTaskService from '../daily-task-service';
 import { MatchResults } from '@stencil/router';
+import dayjs from 'dayjs';
 
 @Component({
     tag: 'daily-task-insert-edit',
@@ -13,6 +14,8 @@ export class DailyTaskInsertEdit {
     @Prop() match: MatchResults;
 
     selectElement: HTMLSelectElement;
+
+    loaderController: HTMLLoaderComponentElement;
 
     componentWillLoad() {
         this.loadState();
@@ -113,6 +116,11 @@ export class DailyTaskInsertEdit {
     renderTaskItem(taskItem: TaskItemDto) {
         return [
             <div class="task-item form-group">
+                <div class="btn-delete-background">
+                    <button class="btn-delete-task" onClick={(e) => this.removeTaskItem(e, taskItem)}>
+                        <img class="img-delete-task" src="/assets/svg/delete.svg"></img>
+                    </button>
+                </div>
                 <div>
                     <input
                         placeholder="Description"
@@ -122,19 +130,23 @@ export class DailyTaskInsertEdit {
                         type="text">
                     </input>
                 </div>
-                <div class="btn-delete-background">
-                    <button class="btn-delete-task" onClick={(e) => this.removeTaskItem(e, taskItem)}>
-                        <img class="img-delete-task" src="/assets/svg/delete.svg"></img>
-                    </button>
+                <div class="done-background">
+                    <label class="done-label">Done</label>
+                    <br></br>
+                    <input class="input-checkbox" type="checkbox" checked={taskItem.done}></input>
                 </div>
             </div>
         ]
     }
 
     async submit(e) {
+        this.loaderController.show();
+
         e.preventDefault();
 
         let taskId = this.match.params.taskId;
+
+        this.state.date = dayjs(this.state.date).format('YYYY-MM-DDTHH:mm:ssZ')
 
         if (taskId)
             await dailyTaskService.edit(this.state);
@@ -142,13 +154,15 @@ export class DailyTaskInsertEdit {
             await dailyTaskService.insert(this.state);
 
         location.href = "/";
+
+        this.loaderController.dismiss();
     }
 
     render() {
         if (!this.state)
-            return <p><center>Loading...</center></p>
+            return <center><spinner-component></spinner-component></center>
 
-        return (
+        return [
             <div class="daily-task-page">
                 <form onSubmit={(e) => this.submit(e)}>
                     <div class="daily-task-form">
@@ -186,7 +200,8 @@ export class DailyTaskInsertEdit {
                         <button type="submit" class="btn-confirm">Confirm</button>
                     </div>
                 </form>
-            </div>
-        )
+            </div>,
+            <loader-component ref={e => this.loaderController = e as any}></loader-component>
+        ]
     }
 }

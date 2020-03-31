@@ -14,13 +14,27 @@ daily-task-insert-edit {
         font-size: 16px;
     }
 
+    .input-checkbox {
+        height: 20px;
+        width: 20px;
+        margin-left: 16px;
+    }
+
     .task-item {
         display: flex;
         align-items: center;
     }
 
     .btn-delete-background {
-        margin-left: 8px;
+        margin-right: 8px;
+    }
+
+    .done-background {
+        text-align: center;
+    }
+
+    .done-label {
+        margin-left: 15px;
     }
 
     .input:focus {
@@ -48,10 +62,6 @@ daily-task-insert-edit {
 
     .form-group {
         margin-bottom: 16px;
-    }
-
-    .task-title-background {
-        margin-bottom: 8px;
     }
 
     .btn-confirm {

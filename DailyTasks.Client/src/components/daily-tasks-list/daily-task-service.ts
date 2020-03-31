@@ -31,6 +31,10 @@ class DailyTaskService {
     async delete(command: { taskId: string }) {
         return this.axios.post('api/Task/Delete', command);
     }
+
+    async setAllTasksDone(command: { id: string }) {
+        await this.axios.post('api/Task/SetAllTasksDone', command);
+    }
 }
 
 export default new DailyTaskService();

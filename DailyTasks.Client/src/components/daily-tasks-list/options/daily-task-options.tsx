@@ -12,9 +12,11 @@ export class DailyTaskOptions {
 
     @Prop() task: IDailyTaskList;
 
-    @Event() taskRemoved: EventEmitter;
+    @Event() taskUpdatedEvent: EventEmitter;
 
     popoverElement: HTMLDivElement;
+
+    loaderController: HTMLLoaderComponentElement;
 
     componentDidLoad() {
         document.onclick = () => {
@@ -54,14 +56,38 @@ export class DailyTaskOptions {
         e.stopImmediatePropagation();
 
         if (confirm('Isso não pode ser desfeito')) {
+            await this.loaderController.show();
+
             await dailyTaskService.delete({ taskId: this.task.id });
-            this.taskRemoved.emit();    
+            this.taskUpdatedEvent.emit();
             this.popoverClosed = true;
+
+            await this.loaderController.dismiss();
         }
     }
 
+    async updateTasksToDone(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        if (confirm('Isso não pode ser desfeito')) {
+            await this.loaderController.show();
+
+            await dailyTaskService.setAllTasksDone({ id: this.task.id });
+            this.taskUpdatedEvent.emit();
+            this.popoverClosed = true;
+
+            await this.loaderController.dismiss();
+        }
+    }
+
+    editTask() {
+        window.location.href = "/edit/" + this.task.id;
+    }
+
     render() {
-        return (
+        return [
             <div onClick={(e) => this.keepOpen(e)}
                 ref={e => this.popoverElement = e as any}
                 class={`options ${!this.popoverClosed && 'show'}`}>
@@ -73,11 +99,23 @@ export class DailyTaskOptions {
                     <span>Copiar tarefa para outro dia</span>
                     <img class="svg-item" src="/assets/svg/copy-task.svg"></img>
                 </div>
+                {
+                    this.task && this.task.quantityTasks > this.task.quantityTasksDone &&
+                    <div class="options-item" onClick={(e) => this.updateTasksToDone(e)}>
+                        <span>Marcar todas tarefas como finalizadas</span>
+                        <img class="svg-item" src="/assets/svg/check-all.svg"></img>
+                    </div>
+                }
+                <div class="options-item" onClick={() => this.editTask()}>
+                    <span>Editar</span>
+                    <img class="svg-item" src="/assets/svg/edit.svg"></img>
+                </div>
                 <div class="options-item" onClick={(e) => this.removeTask(e)}>
                     <span>Remover</span>
                     <img class="svg-item" src="/assets/svg/delete.svg"></img>
                 </div>
-            </div>
-        );
+            </div>,
+            <loader-component ref={e => this.loaderController = e as any}></loader-component>
+        ];
     }
 }

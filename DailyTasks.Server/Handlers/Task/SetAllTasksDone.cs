@@ -9,13 +9,11 @@
 	using System.Threading;
     using System.Threading.Tasks;
 
-    public class UpdateState
+    public class SetAllTasksDone
     {
         public class Command : IRequest
         {
             public string Id { get; set; }
-
-            public DailyTaskStateEnum State { get; set; }
         }
 
         public class CommandHandler : AsyncRequestHandler<Command>
@@ -42,8 +40,12 @@
                 if (dailyTask == null)
                     return;
 
-                dailyTask.State = request.State;
+                dailyTask.State = DailyTaskStateEnum.Closed;
                 dailyTask.ChangedAt = DateTimeOffset.Now;
+
+                if (dailyTask.Items != null)
+                    foreach (var item in dailyTask.Items)
+                        item.Done = true;
 
                 await collection.ReplaceOneAsync(filter, dailyTask, new ReplaceOptions
                 {

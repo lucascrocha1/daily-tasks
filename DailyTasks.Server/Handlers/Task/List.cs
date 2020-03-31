@@ -7,7 +7,8 @@
     using MediatR;
     using MongoDB.Driver;
     using System;
-    using System.Linq;
+	using System.Collections.Generic;
+	using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -15,7 +16,7 @@
     {
         public class Query : IRequest<TaskDto[]>
         {
-            public DateTime Date { get; set; }
+            public DateTimeOffset Date { get; set; }
 
             public DailyTaskStateEnum? State { get; set; }
         }
@@ -26,7 +27,7 @@
 
             public DateTimeOffset CreatedAt { get; set; }
 
-            public DateTime Date { get; set; }
+            public DateTimeOffset Date { get; set; }
 
             public string Description { get; set; }
 
@@ -60,7 +61,7 @@
             public async Task<TaskDto[]> Handle(Query request, CancellationToken cancellationToken)
             {
                 if (request.Date == default || request.Date == null)
-                    request.Date = DateTime.Now;
+                    request.Date = DateTimeOffset.Now;
 
                 request.Date = request.Date.StartOfTheDay();
 
@@ -69,7 +70,7 @@
                 var collectionExists = await MongoHelper.CheckCollectionExists(nameof(DailyTask).Pluralize(), database);
 
                 if (!collectionExists)
-                    return null;
+                    return EmptyResult();
 
                 var collection = database.GetCollection<DailyTask>(nameof(DailyTask).Pluralize());
 
@@ -80,7 +81,7 @@
                 var dailyTasks = await documents.ToListAsync();
 
                 if (dailyTasks.Count() == 0)
-                    return null;
+                    return EmptyResult();
 
                 if (request.State.HasValue)
                     dailyTasks = dailyTasks.Where(e => e.State == request.State.Value).ToList();
@@ -105,6 +106,11 @@
                             .ToArray()
                     })
                     .ToArray();
+            }
+
+            private TaskDto[] EmptyResult()
+            {
+                return new List<TaskDto>().ToArray();
             }
         }
     }

@@ -25,14 +25,14 @@ export class DailyTaskList {
         await this.loadState();
     }
 
-    @Listen('taskRemoved')
-    async taskRemovedHandler() {
+    @Listen('taskUpdatedEvent')
+    async taskUpdatedEventHandler() {
         await this.loadState();
     }
 
     async loadState() {
         this.state = null;
-        
+
         this.state = await dailyTaskService.list({ date: this.dateFilter, state: null });
     }
 
@@ -62,6 +62,7 @@ export class DailyTaskList {
         e.dataTransfer.clearData();
 
         let dropzones = document.querySelectorAll('.task-self');
+
         dropzones.forEach(e => e.classList.remove('dropzone-active'));
 
         await this.updateState(id, +dropzone.id);
@@ -89,12 +90,12 @@ export class DailyTaskList {
         let element = document.getElementById(taskItemId) as HTMLDivElement;
         element.hidden = !element.hidden;
 
-        let img = document.getElementById(taskImageId) as HTMLImageElement;
+        let image = document.getElementById(taskImageId);
 
         if (element.hidden)
-            img.src = img.src.replace('up', 'down');
+            image.classList.remove('btn-options-open');
         else
-            img.src = img.src.replace('down', 'up');
+            image.classList.add('btn-options-open');
     }
 
     getTaskColor(state: TaskState) {
@@ -123,36 +124,12 @@ export class DailyTaskList {
         }
     }
 
-    renderImageDownOption(taskImageId: string, state: TaskState) {
-        switch (state) {
-            case TaskState.New:
-                return <img id={taskImageId} class="img-down-arrow" src="/assets/svg/btn-down-grey.svg"></img>
-            case TaskState.Active:
-                return <img id={taskImageId} class="img-down-arrow" src="/assets/svg/btn-down-yellow.svg"></img>
-            case TaskState.Closed:
-                return <img id={taskImageId} class="img-down-arrow" src="/assets/svg/btn-down-green.svg"></img>
-            default:
-                return <img id={taskImageId} class="img-down-arrow" src="/assets/svg/btn-down-grey.svg"></img>
-        }
-    }
-
-    getImageUpOption(state: TaskState) {
-        switch (state) {
-            case TaskState.New:
-                return "/assets/svg/btn-down-grey.svg"
-            case TaskState.Active:
-                return "/assets/svg/btn-down-yellow.svg"
-            case TaskState.Closed:
-                return "/assets/svg/btn-down-green.svg"
-            default:
-                return "/assets/svg/btn-down-grey.svg"
-        }
-    }
-
     renderTaskItems(task: TaskItemDto, state: TaskState) {
         return (
             <div class={`task-item-inner ${this.getBorderColor(state)}`}>
-                <span>{task.description}</span>
+                <div class="task-item-inner-title">
+                    {task.description}
+                </div>
                 {task.done && <img class="check-task-done" src="/assets/svg/check.svg"></img>}
             </div>
         )
@@ -188,7 +165,9 @@ export class DailyTaskList {
                     </span>
                 </div>
                 <div title="Options" class="btn-down-arrow" onClick={e => this.expandTasks(e, taskItemId, taskImageId)}>
-                    {this.renderImageDownOption(taskImageId, task.state)}
+                    <div class={`options-btn ${this.getTaskColor(task.state)}`}>
+                        <img id={taskImageId} class="options-img" src="/assets/svg/down-arrow.svg"></img>
+                    </div>
                 </div>
             </div>,
             <div id={taskItemId} hidden class="task-items-background">
@@ -206,7 +185,13 @@ export class DailyTaskList {
     }
 
     render() {
-        if (!this.state || this.state.length == 0)
+        if (!this.state)
+            return [
+                <center class="center-spinner"><spinner-component></spinner-component></center>,
+                this.renderFabAddTask()
+            ]
+
+        if (!this.state.length)
             return [
                 <p><center>No records found.</center></p>,
                 this.renderFabAddTask()

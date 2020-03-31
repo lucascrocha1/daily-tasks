@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import qs from 'qs';
+import dayjs from 'dayjs';
 
 class AxiosConfiguration {
     private axiosInstance: AxiosInstance;
@@ -15,6 +16,8 @@ class AxiosConfiguration {
 
     private configure() {
         this.configureApiUrl();
+        this.configureInterceptor();
+        this.configureSerialization();
     }
 
     configureApiUrl() {
@@ -31,7 +34,10 @@ class AxiosConfiguration {
 
     configureSerialization() {
         this.axiosInstance.defaults.paramsSerializer = (params) => {
-            return qs.stringify(params, { arrayFormat: 'repeat' })
+            return qs.stringify(params, {
+                arrayFormat: 'repeat',
+                serializeDate: (date: Date) => dayjs(date).format('YYYY-MM-DDTHH:mm:ssZ')
+            })
         }
     }
 }
