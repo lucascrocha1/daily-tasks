@@ -1,5 +1,6 @@
 export interface IDailyTaskList {
     id: string,
+    title: string,
     description: string,
     state: TaskState,
     createdAt: string,
@@ -11,6 +12,7 @@ export interface IDailyTaskList {
 
 export interface IDailyTaskInsertEdit {
     id: string,
+    title: string,
     description: string,
     date: string,
     taskItems: TaskItemDto[],

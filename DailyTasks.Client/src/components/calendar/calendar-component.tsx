@@ -1,4 +1,4 @@
-import { Component, h, State } from '@stencil/core';
+import { Component, h, State, Prop } from '@stencil/core';
 import calendarService from './calendar-service';
 
 @Component({
@@ -6,7 +6,6 @@ import calendarService from './calendar-service';
     styleUrl: 'calendar-component.scss'
 })
 export class CalendarComponent {
-
     @State() currentMonth = new Date().getMonth() + 1;
 
     @State() currentYear = new Date().getFullYear();
@@ -17,7 +16,24 @@ export class CalendarComponent {
 
     @State() numberOfDaysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
 
+    @Prop() currentSelectedDate: Date;
+
+    @Prop() ignoreDateChange: boolean;
+
     months = calendarService.getMonths();
+
+    componentWillLoad() {
+        if (this.currentSelectedDate)
+            this.setSelectedDate();
+    }
+
+    setSelectedDate() {
+        this.currentDay = this.currentSelectedDate.getDate();
+        this.currentMonth = this.currentSelectedDate.getMonth() + 1;
+        this.currentYear = this.currentSelectedDate.getFullYear();
+        this.selectedDate = this.currentSelectedDate;
+        this.numberOfDaysInMonth = new Date(this.currentYear, this.currentMonth, 0).getDate();
+    }
 
     changeDate(e, increment: number) {
         e.preventDefault();
@@ -52,8 +68,13 @@ export class CalendarComponent {
 
         this.selectedDate = date;
 
-        let evt = new CustomEvent('dayChanged', { detail : date});
-        
+        let evt = new CustomEvent('dayChanged', {
+            detail: {
+                date,
+                ignoreDateChange: this.ignoreDateChange
+            }
+        });
+
         window.dispatchEvent(evt);
     }
 
@@ -73,7 +94,7 @@ export class CalendarComponent {
         let resultSaturday = [];
 
         let i = 1;
-        
+
         let today = new Date();
 
         while (i <= this.numberOfDaysInMonth) {
@@ -81,7 +102,7 @@ export class CalendarComponent {
             let dayOfTheWeek = dateFilter.getDay();
             let currentDay = today.getDate() == i && dateFilter.getMonth() == today.getMonth() && dateFilter.getFullYear() == today.getFullYear();
             let selectedDay = this.selectedDate.getMonth() == dateFilter.getMonth() && this.currentDay == i;
-            
+
             switch (dayOfTheWeek) {
                 case 0:
                     resultSunday.push(<span id={`${i}`} class={`day ${currentDay && 'current-day'} ${selectedDay && 'selected-day'}`} onClick={(e) => this.setCurrentDay(e)}>{i}</span>)

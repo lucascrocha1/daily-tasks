@@ -1,7 +1,6 @@
-import { Component, h, Prop, State, Listen } from '@stencil/core';
+import { Component, h, Prop, State, Listen, Method } from '@stencil/core';
 import { IDailyTaskInsertEdit, TaskState, TaskItemDto } from '../../../base/interface';
 import dailyTaskService from '../daily-task-service';
-import { MatchResults } from '@stencil/router';
 import dayjs from 'dayjs';
 
 @Component({
@@ -11,7 +10,11 @@ import dayjs from 'dayjs';
 export class DailyTaskInsertEdit {
     @State() state: IDailyTaskInsertEdit;
 
-    @Prop() match: MatchResults;
+    @State() selectedDate: Date;
+
+    @Prop() taskId: string;
+
+    @Prop() modalController: HTMLModalComponentElement;
 
     selectElement: HTMLSelectElement;
 
@@ -21,24 +24,13 @@ export class DailyTaskInsertEdit {
         this.loadState();
     }
 
-    componentDidLoad() {
-        this.hideCalendar();
-    }
-
     componentDidRender() {
         this.setStateValue();
     }
 
-    @Listen('window:dayChanged')
+    @Listen('dayChanged', { target: 'window' })
     async dayChangedHandler(e: CustomEvent) {
-        this.state.date = e.detail;
-    }
-
-    hideCalendar() {
-        let header = document.querySelector('header-component');
-
-        header.hideCalendar = true;
-        header.showBackButton = true;
+        this.state.date = e.detail.date;
     }
 
     setStateValue() {
@@ -46,16 +38,18 @@ export class DailyTaskInsertEdit {
             this.selectElement.value = this.state.state as any;
     }
 
+    @Method()
     async loadState() {
-        let taskId = this.match.params.taskId;
-
-        if (taskId) {
-            this.state = await dailyTaskService.get({ id: taskId });
+        if (this.taskId) {
+            this.state = await dailyTaskService.get({ id: this.taskId });
             this.ensureOneDescriptionIsNull();
+
+            this.selectedDate = new Date(this.state.date);
         }
-        else
+        else {
             this.state = {
-                date: new Date(),
+                date: new Date().toString(),
+                title: null,
                 description: null,
                 id: null,
                 state: TaskState.New,
@@ -65,6 +59,7 @@ export class DailyTaskInsertEdit {
                     id: null
                 }]
             }
+        }
     }
 
     handleDescriptionChange(e) {
@@ -73,19 +68,28 @@ export class DailyTaskInsertEdit {
         this.state.description = value;
     }
 
+    handleTitleChange(e) {
+        let value = e.target.value;
+
+        this.state.title = value;
+    }
+
     ensureOneDescriptionIsNull() {
         let lastTask = this.state.taskItems.slice(-1).pop();
 
-        if (lastTask && !!lastTask.description) {
-            this.state.taskItems.push({
-                id: null,
-                description: null,
-                done: false
-            })
+        if (lastTask && !!lastTask.description)
+            this.addNewTask()
+    }
 
-            this.state = {
-                ...this.state
-            }
+    addNewTask() {
+        this.state.taskItems.push({
+            id: null,
+            description: null,
+            done: false
+        })
+
+        this.state = {
+            ...this.state
         }
     }
 
@@ -111,6 +115,8 @@ export class DailyTaskInsertEdit {
         this.state = {
             ...this.state
         }
+
+        this.ensureOneDescriptionIsNull();
     }
 
     renderTaskItem(taskItem: TaskItemDto) {
@@ -144,7 +150,7 @@ export class DailyTaskInsertEdit {
 
         e.preventDefault();
 
-        let taskId = this.match.params.taskId;
+        let taskId = this.taskId;
 
         this.state.date = dayjs(this.state.date).format('YYYY-MM-DDTHH:mm:ssZ')
 
@@ -158,48 +164,80 @@ export class DailyTaskInsertEdit {
         this.loaderController.dismiss();
     }
 
+    async closeModal() {
+        await this.modalController.dismiss();
+    }
+
     render() {
         if (!this.state)
             return <center><spinner-component></spinner-component></center>
 
         return [
-            <div class="daily-task-page">
-                <form onSubmit={(e) => this.submit(e)}>
-                    <div class="daily-task-form">
-                        <div>
-                            <div class="form-group">
-                                <label>Description</label>
-                                <input required value={this.state.description} placeholder="Description" onChange={(e) => this.handleDescriptionChange(e)} class="input" type="text"></input>
-                            </div>
-                            <div class="form-group">
-                                <label>State</label>
-                                <select
-                                    ref={e => this.selectElement = e as any}
-                                    required
-                                    onChange={(e) => this.handleSelectChange(e)}
-                                    class="input">
-                                    <option value={TaskState.New as any}>To do</option>
-                                    <option value={TaskState.Active as any}>Doing</option>
-                                    <option value={TaskState.Closed as any}>Done</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <div class="task-title-background">
-                                    <span>Tasks</span>
+            <div>
+                <div class="task-header">
+                    <div class="img-cancel-background" onClick={() => this.closeModal()}>
+                        <img class="img-cancel" src="/assets/svg/cancel.svg"></img>
+                    </div>
+                    <span class="task-header-title">
+                        {this.taskId ? 'Edit' : 'Insert'} task
+                </span>
+                </div>
+                <div class="daily-task-page">
+                    <form onSubmit={(e) => this.submit(e)}>
+                        <div class="daily-task-form">
+                            <div>
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input
+                                        required
+                                        value={this.state.title}
+                                        onChange={(e) => this.handleTitleChange(e)}
+                                        class="input"
+                                        type="text">
+                                    </input>
                                 </div>
-                                <div>
-                                    {this.state.taskItems.map(e => this.renderTaskItem(e))}
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea
+                                        required
+                                        value={this.state.description}
+                                        placeholder="Description"
+                                        maxlength={1000}
+                                        onChange={(e) => this.handleDescriptionChange(e)}
+                                        class="input textarea">
+                                    </textarea>
+                                    <div></div>
                                 </div>
+                                <div class="form-group">
+                                    <label>State</label>
+                                    <select
+                                        ref={e => this.selectElement = e as any}
+                                        required
+                                        onChange={(e) => this.handleSelectChange(e)}
+                                        class="input">
+                                        <option value={TaskState.New as any}>To do</option>
+                                        <option value={TaskState.Active as any}>Doing</option>
+                                        <option value={TaskState.Closed as any}>Done</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <div class="task-title-background">
+                                        <span>Tasks</span>
+                                    </div>
+                                    <div>
+                                        {this.state.taskItems.map(e => this.renderTaskItem(e))}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="calendar-component">
+                                <calendar-component ignoreDateChange={true} currentSelectedDate={this.selectedDate}></calendar-component>
                             </div>
                         </div>
-                        <div class="calendar-component">
-                            <calendar-component></calendar-component>
+                        <div class="btn-background">
+                            <button type="submit" class="btn-confirm">Confirm</button>
                         </div>
-                    </div>
-                    <div class="btn-background">
-                        <button type="submit" class="btn-confirm">Confirm</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>,
             <loader-component ref={e => this.loaderController = e as any}></loader-component>
         ]

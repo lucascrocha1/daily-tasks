@@ -29,7 +29,7 @@
 
             public DateTimeOffset Date { get; set; }
 
-            public string Description { get; set; }
+            public string Title { get; set; }
 
             public DailyTaskStateEnum State { get; set; }
 
@@ -93,7 +93,7 @@
                         State = e.State,
                         Date = e.Date,
                         CreatedAt = e.CreatedAt,
-                        Description = e.Description,
+                        Title = e.Title,
                         QuantityTasks = e.Items.Count(),
                         QuantityTasksDone = e.Items.Where(g => g.Done).Count(),
                         TaskItems = e.Items

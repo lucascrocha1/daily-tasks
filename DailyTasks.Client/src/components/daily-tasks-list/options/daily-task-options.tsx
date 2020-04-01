@@ -102,14 +102,10 @@ export class DailyTaskOptions {
                 {
                     this.task && this.task.quantityTasks > this.task.quantityTasksDone &&
                     <div class="options-item" onClick={(e) => this.updateTasksToDone(e)}>
-                        <span>Marcar todas tarefas como finalizadas</span>
+                        <span>Finalizar tarefa</span>
                         <img class="svg-item" src="/assets/svg/check-all.svg"></img>
                     </div>
                 }
-                <div class="options-item" onClick={() => this.editTask()}>
-                    <span>Editar</span>
-                    <img class="svg-item" src="/assets/svg/edit.svg"></img>
-                </div>
                 <div class="options-item" onClick={(e) => this.removeTask(e)}>
                     <span>Remover</span>
                     <img class="svg-item" src="/assets/svg/delete.svg"></img>

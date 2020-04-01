@@ -19,6 +19,8 @@
         {
             public string Id { get; set; }
 
+            public string Title { get; set; }
+
             public string Description { get; set; }
 
             public DateTimeOffset Date { get; set; }
@@ -87,6 +89,7 @@
                     ChangedAt = DateTimeOffset.Now,
                     CreatedAt = DateTimeOffset.Now,
                     Date = request.Date.StartOfTheDay(),
+                    Title = request.Title,
                     Description = request.Description,
                     State = request.State,
                     Items = new List<DailyTaskItem>()
@@ -119,6 +122,7 @@
             {
                 dailyTask.ChangedAt = DateTimeOffset.Now;
                 dailyTask.Date = request.Date.StartOfTheDay();
+                dailyTask.Title = request.Title;
                 dailyTask.Description = request.Description;
                 dailyTask.State = request.State;
 

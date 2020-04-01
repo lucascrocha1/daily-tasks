@@ -25,9 +25,12 @@ export class HeaderComponent {
         }
     }
 
-    @Listen('window:dayChanged')
+    @Listen('dayChanged', { target: 'window' })
     dayChangedHandler(e: CustomEvent) {
-        this.currentDate = e.detail;
+        if (e.detail.ignoreDateChange)
+            return;
+
+        this.currentDate = e.detail.date;
 
         this.calendarHidden = true;
     }

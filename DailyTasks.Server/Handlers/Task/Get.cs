@@ -21,6 +21,8 @@
         {
             public string Id { get; set; }
 
+            public string Title { get; set; }
+
             public string Description { get; set; }
 
             public DateTimeOffset Date { get; set; }
@@ -68,6 +70,7 @@
                     Id = dailyTask.Id,
                     Date = dailyTask.Date,
                     State = dailyTask.State,
+                    Title = dailyTask.Title,
                     Description = dailyTask.Description,
                     TaskItems = dailyTask.Items
                         .Select(e => new TaskItemsDto

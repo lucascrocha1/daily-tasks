@@ -1,6 +1,7 @@
 daily-task-insert-edit {
     .daily-task-page {
         padding: 16px;
+        background-color: white;
     }
 
     .input {
@@ -8,9 +9,8 @@ daily-task-insert-edit {
         border-radius: 5px;
         height: 40px;
         width: 100%;
-        max-width: 100vw;
+        max-width: 100%;
         outline: none;
-        padding-left: 4px;
         font-size: 16px;
     }
 
@@ -45,6 +45,11 @@ daily-task-insert-edit {
         font-size: 16px;
     }
 
+    .textarea {
+        resize: none;
+        height: 150px;
+    }
+
     .img-delete-task {
         width: 16px;
     }
@@ -74,6 +79,11 @@ daily-task-insert-edit {
         font-size: 20px;
         font-family: "Roboto Condensed";
         cursor: pointer;
+        transition: .3s;
+    }
+
+    .btn-confirm:hover {
+        background-color: #d4c961;
     }
 
     .btn-background {
@@ -84,6 +94,28 @@ daily-task-insert-edit {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+    }
+
+    .img-cancel {
+        width: 16px;
+    }
+
+    .img-cancel-background {
+        margin-top: 3px;
+        cursor: pointer;
+    }
+
+    .task-header {
+        padding: 12px 16px 12px 16px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #cecece;
+        background-color: #fff275;
+    }
+
+    .task-header-title {
+        font-size: 24px;
+        margin-left: 16px;
     }
 
     @media (max-width: 605px) {
