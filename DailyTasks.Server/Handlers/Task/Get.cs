@@ -1,10 +1,9 @@
 ﻿namespace DailyTasks.Server.Handlers.Task
 {
     using DailyTasks.Server.Infrastructure;
-    using DailyTasks.Server.Infrastructure.Services.Mongo.Connection;
     using DailyTasks.Server.Models;
     using MediatR;
-    using MongoDB.Driver;
+    using Microsoft.EntityFrameworkCore;
     using System;
     using System.Linq;
     using System.Threading;
@@ -14,12 +13,12 @@
     {
         public class Query : IRequest<Dto>
         {
-            public string Id { get; set; }
+            public int Id { get; set; }
         }
 
         public class Dto
         {
-            public string Id { get; set; }
+            public int Id { get; set; }
 
             public string Title { get; set; }
 
@@ -27,60 +26,72 @@
 
             public DateTimeOffset Date { get; set; }
 
-            public TaskItemsDto[] TaskItems { get; set; }
+            public CommentsDto[] Comments { get; set; }
 
             public DailyTaskStateEnum State { get; set; }
+
+            public ChecklistDto[] Checklists { get; set; }
         }
 
-        public class TaskItemsDto
+        public class ChecklistDto
         {
-            public string Id { get; set; }
-
-            public string Description { get; set; }
+            public int Id { get; set; }
 
             public bool Done { get; set; }
+
+            public string Description { get; set; }
+        }
+
+        public class CommentsDto
+        {
+            public int Id { get; set; }
+
+            public string Comment { get; set; }
+
+            public string CreatedBy { get; set; }
+
+            public DateTimeOffset CreatedAt { get; set; }
         }
 
         public class QueryHandler : IRequestHandler<Query, Dto>
         {
-            private readonly IMongoConnection _mongoConnection;
+            private readonly DailyTaskContext _context;
 
-            public QueryHandler(IMongoConnection mongoConnection)
+            public QueryHandler(DailyTaskContext context)
             {
-                _mongoConnection = mongoConnection;
+                _context = context;
             }
 
             public async Task<Dto> Handle(Query request, CancellationToken cancellationToken)
             {
-                var database = _mongoConnection.GetDatabase();
-
-                var collection = database.GetCollection<DailyTask>(nameof(DailyTask).Pluralize());
-
-                var filter = Builders<DailyTask>.Filter.Eq(e => e.Id, request.Id);
-
-                var document = await collection.FindAsync(filter);
-
-                var dailyTask = await document.FirstOrDefaultAsync();
-
-                if (dailyTask == null)
-                    return null;
-
-                return new Dto
-                {
-                    Id = dailyTask.Id,
-                    Date = dailyTask.Date,
-                    State = dailyTask.State,
-                    Title = dailyTask.Title,
-                    Description = dailyTask.Description,
-                    TaskItems = dailyTask.Items
-                        .Select(e => new TaskItemsDto
-                        {
-                            Id = e.Id,
-                            Done = e.Done,
-                            Description = e.Description,
-                        })
-                        .ToArray()
-                };
+                return await _context
+                    .Set<DailyTask>()
+                    .AsNoTracking()
+                    .Where(e => e.Id == request.Id)
+                    .Select(e => new Dto
+                    {
+                        Id = e.Id,
+                        Date = e.Date,
+                        Title = e.Title,
+                        State = e.State,
+                        Description = e.Description,
+                        Comments = e.Comments.Select(g => new CommentsDto
+                            {
+                                Id = g.Id,
+                                Comment = g.Comment,
+                                CreatedAt = g.CreatedAt,
+                                CreatedBy = g.CreatedBy
+                            })
+                            .ToArray(),
+                        Checklists = e.Checklists.Select(g => new ChecklistDto
+                            {
+                                Id = g.Id,
+                                Done = g.Done,
+                                Description = g.Description
+                            })
+                            .ToArray()
+                    })
+                    .FirstOrDefaultAsync();
             }
         }
     }

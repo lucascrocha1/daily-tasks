@@ -1,54 +1,62 @@
 ﻿namespace DailyTasks.Server.Handlers.Task
 {
     using DailyTasks.Server.Infrastructure;
-    using DailyTasks.Server.Infrastructure.Services.Mongo.Connection;
+    using DailyTasks.Server.Infrastructure.Services.User;
     using DailyTasks.Server.Models;
     using MediatR;
-    using MongoDB.Driver;
-	using System;
-	using System.Threading;
+    using Microsoft.EntityFrameworkCore;
+    using System;
+    using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public class UpdateState
     {
         public class Command : IRequest
         {
-            public string Id { get; set; }
+            public int Id { get; set; }
 
             public DailyTaskStateEnum State { get; set; }
         }
 
         public class CommandHandler : AsyncRequestHandler<Command>
         {
-            private readonly IMongoConnection _mongoConnection;
+            private readonly DailyTaskContext _context;
+            private readonly IUserService _userService;
 
-            public CommandHandler(IMongoConnection mongoConnection)
+            public CommandHandler(DailyTaskContext context, IUserService userService)
             {
-                _mongoConnection = mongoConnection;
+                _context = context;
+                _userService = userService;
             }
 
             protected override async Task Handle(Command request, CancellationToken cancellationToken)
             {
-                var database = _mongoConnection.GetDatabase();
-
-                var collection = database.GetCollection<DailyTask>(nameof(DailyTask).Pluralize());
-
-                var filter = Builders<DailyTask>.Filter.Eq(e => e.Id, request.Id);
-
-                var task = await collection.FindAsync(filter);
-
-                var dailyTask = await task.FirstOrDefaultAsync();
+                var dailyTask = await GetDailyTask(request.Id);
 
                 if (dailyTask == null)
                     return;
 
+                var userId = _userService.GetUserId();
+
+                MapChanges(dailyTask, request, userId);
+
+                await _context.SaveChangesAsync();
+            }
+
+            private void MapChanges(DailyTask dailyTask, Command request, string userId)
+            {
+                dailyTask.ChangedBy = userId;
                 dailyTask.State = request.State;
                 dailyTask.ChangedAt = DateTimeOffset.Now;
+            }
 
-                await collection.ReplaceOneAsync(filter, dailyTask, new ReplaceOptions
-                {
-                    IsUpsert = true
-                });
+            private async Task<DailyTask> GetDailyTask(int id)
+            {
+                return await _context
+                    .Set<DailyTask>()
+                    .Where(e => e.Id == id)
+                    .FirstOrDefaultAsync();
             }
         }
     }

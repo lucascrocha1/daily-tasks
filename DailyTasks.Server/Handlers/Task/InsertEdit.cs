@@ -1,23 +1,21 @@
 ﻿namespace DailyTasks.Server.Handlers.Task
 {
     using DailyTasks.Server.Infrastructure;
-    using DailyTasks.Server.Infrastructure.Services.Mongo.Connection;
-    using DailyTasks.Server.Infrastructure.Services.Mongo.Helper;
+    using DailyTasks.Server.Infrastructure.Services.User;
     using DailyTasks.Server.Models;
     using MediatR;
-	using MongoDB.Bson;
-	using MongoDB.Driver;
+    using Microsoft.EntityFrameworkCore;
     using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Threading;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public class InsertEdit
     {
         public class Command : IRequest
         {
-            public string Id { get; set; }
+            public int? Id { get; set; }
 
             public string Title { get; set; }
 
@@ -25,137 +23,102 @@
 
             public DateTimeOffset Date { get; set; }
 
-            public TaskItemsDto[] TaskItems { get; set; }
+            public ChecklistDto[] Checklists { get; set; }
 
             public DailyTaskStateEnum State { get; set; }
         }
 
-        public class TaskItemsDto
+        public class ChecklistDto
         {
-            public string Id { get; set; }
-
-            public string Description { get; set; }
+            public int? Id { get; set; }
 
             public bool Done { get; set; }
+
+            public string Description { get; set; }
         }
 
         public class CommandHandler : AsyncRequestHandler<Command>
         {
-            private readonly IMongoConnection _mongoConnection;
+            private readonly DailyTaskContext _context;
+            private readonly IUserService _userService;
 
-            public CommandHandler(IMongoConnection mongoConnection)
+            public CommandHandler(DailyTaskContext context, IUserService userService)
             {
-                _mongoConnection = mongoConnection;
+                _context = context;
+                _userService = userService;
             }
 
             protected override async Task Handle(Command request, CancellationToken cancellationToken)
             {
-                var database = _mongoConnection.GetDatabase();
+                var userId = _userService.GetUserId();
 
-                var collectionExists = await MongoHelper.CheckCollectionExists(nameof(DailyTask).Pluralize(), database);
+                DailyTask dailyTask;
 
-                if (!collectionExists)
-                    await database.CreateCollectionAsync(nameof(DailyTask).Pluralize());
-
-                var collection = database.GetCollection<DailyTask>(nameof(DailyTask).Pluralize());
-
-                var filter = Builders<DailyTask>.Filter.Eq(e => e.Id, request.Id);
-
-                var task = await collection.FindAsync(filter);
-
-                var dailyTask = await task.FirstOrDefaultAsync();
-
-                RemoveUnusedTasks(request);
-
-                if (dailyTask != null)
+                if (!request.Id.HasValue)
                 {
-                    MapChanges(dailyTask, request);
-
-                    await UpdateDocument(filter, dailyTask, collection, request);
+                    dailyTask = new DailyTask
+                    {
+                        CreatedAt = DateTimeOffset.Now,
+                        CreatedBy = userId
+                    };
                 }
                 else
-                    await collection.InsertOneAsync(CreateDailyTask(request));
+                    dailyTask = await GetDailyTask(request.Id.Value);
+
+                if (dailyTask == null)
+                    return;
+
+                MapChanges(dailyTask, request, userId);
+
+                await _context.SaveChangesAsync();
             }
 
-            private void RemoveUnusedTasks(Command request)
+            private async Task<DailyTask> GetDailyTask(int id)
             {
-                request.TaskItems = request.TaskItems.Where(e => !string.IsNullOrEmpty(e.Description)).ToArray();
+                return await _context
+                    .Set<DailyTask>()
+                    .Where(e => e.Id == id)
+                    .FirstOrDefaultAsync();
             }
 
-            private DailyTask CreateDailyTask(Command request)
+            private void MapChanges(DailyTask dailyTask, Command request, string userId)
             {
-                var dailyTask = new DailyTask
-                {
-                    ChangedAt = DateTimeOffset.Now,
-                    CreatedAt = DateTimeOffset.Now,
-                    Date = request.Date.StartOfTheDay(),
-                    Title = request.Title,
-                    Description = request.Description,
-                    State = request.State,
-                    Items = new List<DailyTaskItem>()
-                };
-
-                foreach (var item in request.TaskItems)
-                {
-                    dailyTask.Items.Add(new DailyTaskItem
-                    {
-                        ChangedAt = DateTimeOffset.Now,
-                        CreatedAt = DateTimeOffset.Now,
-                        Description = item.Description,
-                        Done = item.Done,
-                        Id = ObjectId.GenerateNewId().ToString()
-                    });
-                }
-
-                return dailyTask;
-            }
-
-            private async Task UpdateDocument(FilterDefinition<DailyTask> filter, DailyTask dailyTask, IMongoCollection<DailyTask> collection, Command request)
-            {
-                await collection.ReplaceOneAsync(filter, dailyTask, new ReplaceOptions
-                {
-                    IsUpsert = true
-                });
-            }
-
-            private void MapChanges(DailyTask dailyTask, Command request)
-            {
-                dailyTask.ChangedAt = DateTimeOffset.Now;
-                dailyTask.Date = request.Date.StartOfTheDay();
                 dailyTask.Title = request.Title;
-                dailyTask.Description = request.Description;
                 dailyTask.State = request.State;
+                dailyTask.ChangedBy = userId;
+                dailyTask.ChangedAt = DateTimeOffset.Now;
+                dailyTask.Description = request.Description;
+                dailyTask.Date = request.Date.StartOfTheDay();
 
-                if (dailyTask.Items == null)
-                    dailyTask.Items = new List<DailyTaskItem>();
+                if (dailyTask.Checklists == null)
+                    dailyTask.Checklists = new List<DailyTaskChecklist>();
 
-                var requestTaskItemIds = request.TaskItems.Select(e => e.Id).Where(e => !string.IsNullOrEmpty(e));
+                var requestTaskItemIds = request.Checklists.Select(e => e.Id).Where(e => e.HasValue);
 
-                var removedIds = dailyTask.Items.Where(e => !requestTaskItemIds.Contains(e.Id)).Select(e => e.Id);
+                var removedIds = dailyTask.Checklists.Where(e => !requestTaskItemIds.Contains(e.Id)).Select(e => e.Id);
 
-                dailyTask.Items = dailyTask.Items.Where(e => !removedIds.Contains(e.Id)).ToList();
+                dailyTask.Checklists = dailyTask.Checklists.Where(e => !removedIds.Contains(e.Id)).ToList();
 
-                var inserted = request.TaskItems.Where(e => string.IsNullOrEmpty(e.Id));
+                var inserted = request.Checklists.Where(e => !e.Id.HasValue);
 
                 foreach (var item in inserted)
                 {
-                    dailyTask.Items.Add(new DailyTaskItem
+                    dailyTask.Checklists.Add(new DailyTaskChecklist
                     {
+                        Done = item.Done,
                         ChangedAt = DateTimeOffset.Now,
                         CreatedAt = DateTimeOffset.Now,
                         Description = item.Description,
-                        Done = item.Done,
-                        Id = ObjectId.GenerateNewId().ToString()
                     });
                 }
 
-                var dailyTaskItemsIds = dailyTask.Items.Select(e => e.Id);
+                var dailyTaskItemsIds = dailyTask.Checklists.Select(e => e.Id);
 
-                var updated = request.TaskItems.Where(e => dailyTaskItemsIds.Contains(e.Id));
+                var updated = request.Checklists.Where(e => e.Id.HasValue && dailyTaskItemsIds.Contains(e.Id.Value));
 
                 foreach (var item in updated)
                 {
-                    var dailyTaskItem = dailyTask.Items.FirstOrDefault(e => e.Id == item.Id);
+                    var dailyTaskItem = dailyTask.Checklists.FirstOrDefault(e => e.Id == item.Id);
 
                     dailyTaskItem.Description = item.Description;
                     dailyTaskItem.Done = item.Done;

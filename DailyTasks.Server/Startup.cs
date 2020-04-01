@@ -1,23 +1,37 @@
 namespace DailyTasks.Server
 {
-	using DailyTasks.Server.Infrastructure.Services.Mongo.Connection;
-	using DailyTasks.Server.Infrastructure.Services.Mongo.Helper;
+	using DailyTasks.Server.Infrastructure;
+	using DailyTasks.Server.Infrastructure.Services.User;
 	using MediatR;
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Hosting;
+	using Microsoft.EntityFrameworkCore;
+	using Microsoft.Extensions.Configuration;
 	using Microsoft.Extensions.DependencyInjection;
 	using Microsoft.Extensions.Hosting;
 	using Microsoft.OpenApi.Models;
 
 	public class Startup
 	{
+		private readonly IConfiguration _configuration;
+
+		public Startup(IConfiguration configuration)
+		{
+			_configuration = configuration;
+		}
+
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddControllers().AddNewtonsoftJson();
 
 			services.AddMediatR(typeof(Startup));
 
-			services.AddTransient<IMongoConnection, MongoConnection>();
+			services.AddDbContext<DailyTaskContext>(opts =>
+			{
+				opts.UseSqlServer(_configuration.GetConnectionString("DailyTaskConnection"));
+			});
+
+			services.AddTransient<IUserService, UserService>();
 
 			services.AddSwaggerGen(opts =>
 			{

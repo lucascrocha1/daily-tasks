@@ -1,10 +1,10 @@
 ﻿namespace DailyTasks.Server.Handlers.Task
 {
     using DailyTasks.Server.Infrastructure;
-    using DailyTasks.Server.Infrastructure.Services.Mongo.Connection;
     using DailyTasks.Server.Models;
     using MediatR;
-    using MongoDB.Driver;
+    using Microsoft.EntityFrameworkCore;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -12,27 +12,36 @@
     {
         public class Command : IRequest
         {
-            public string TaskId { get; set; }
+            public int Id { get; set; }
         }
 
         public class CommandHandler : AsyncRequestHandler<Command>
         {
-            private readonly IMongoConnection _mongoConnection;
+            private readonly DailyTaskContext _context;
 
-            public CommandHandler(IMongoConnection mongoConnection)
+            public CommandHandler(DailyTaskContext context)
             {
-                _mongoConnection = mongoConnection;
+                _context = context;
             }
 
             protected override async Task Handle(Command request, CancellationToken cancellationToken)
             {
-                var database = _mongoConnection.GetDatabase();
+                var dailyTask = await GetDailyTask(request.Id);
 
-                var collection = database.GetCollection<DailyTask>(nameof(DailyTask).Pluralize());
+                if (dailyTask == null)
+                    return;
 
-                var filter = Builders<DailyTask>.Filter.Eq(e => e.Id, request.TaskId);
+                _context.Remove(dailyTask);
 
-                await collection.DeleteOneAsync(filter);
+                await _context.SaveChangesAsync();
+            }
+
+            private async Task<DailyTask> GetDailyTask(int id)
+            {
+                return await _context
+                    .Set<DailyTask>()
+                    .Where(e => e.Id == id)
+                    .FirstOrDefaultAsync();
             }
         }
     }

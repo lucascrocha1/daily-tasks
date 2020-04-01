@@ -1,13 +1,10 @@
 ﻿namespace DailyTasks.Server.Models
 {
-	using MongoDB.Bson;
-	using MongoDB.Bson.Serialization.Attributes;
-	using System;
+    using System;
 
-    public class DailyTaskItem
+    public class DailyTaskChecklist
     {
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         public string Description { get; set; }
 
@@ -16,5 +13,9 @@
         public DateTimeOffset CreatedAt { get; set; }
 
         public DateTimeOffset ChangedAt { get; set; }
+
+        public int DailyTaskId { get; set; }
+
+        public DailyTask DailyTask { get; set; }
     }
 }

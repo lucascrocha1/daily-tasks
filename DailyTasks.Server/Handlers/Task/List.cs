@@ -1,116 +1,113 @@
 ﻿namespace DailyTasks.Server.Handlers.Task
 {
     using DailyTasks.Server.Infrastructure;
-    using DailyTasks.Server.Infrastructure.Services.Mongo.Connection;
-    using DailyTasks.Server.Infrastructure.Services.Mongo.Helper;
     using DailyTasks.Server.Models;
     using MediatR;
-    using MongoDB.Driver;
+    using Microsoft.EntityFrameworkCore;
     using System;
-	using System.Collections.Generic;
-	using System.Linq;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
     public class List
     {
-        public class Query : IRequest<TaskDto[]>
+        public class Query : IRequest<DailyTaskDto[]>
         {
+            public int PageSize { get; set; }
+
+            public int PageIndex { get; set; }
+
+            public int? CategoryId { get; set; }
+
             public DateTimeOffset Date { get; set; }
 
             public DailyTaskStateEnum? State { get; set; }
         }
 
-        public class TaskDto
+        public class DailyTaskDto
         {
-            public string Id { get; set; }
-
-            public DateTimeOffset CreatedAt { get; set; }
-
-            public DateTimeOffset Date { get; set; }
+            public int Id { get; set; }
 
             public string Title { get; set; }
 
-            public DailyTaskStateEnum State { get; set; }
+            public int CategoryId { get; set; }
 
             public int QuantityTasks { get; set; }
 
+            public DateTimeOffset Date { get; set; }
+
             public int QuantityTasksDone { get; set; }
 
-            public TaskItemDto[] TaskItems { get; set; }
+            public DailyTaskStateEnum State { get; set; }
+
+            public ChecklistDto[] Checklists { get; set; }
         }
 
-        public class TaskItemDto
+        public class ChecklistDto
         {
-            public string Id { get; set; }
-
-            public string Description { get; set; }
+            public int Id { get; set; }
 
             public bool Done { get; set; }
+
+            public string Description { get; set; }
         }
 
-        public class QueryHandler : IRequestHandler<Query, TaskDto[]>
+        public class QueryHandler : IRequestHandler<Query, DailyTaskDto[]>
         {
-            private readonly IMongoConnection _mongoConnection;
+            private readonly DailyTaskContext _context;
 
-            public QueryHandler(IMongoConnection mongoConnection)
+            public QueryHandler(DailyTaskContext context)
             {
-                _mongoConnection = mongoConnection;
+                _context = context;
             }
 
-            public async Task<TaskDto[]> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<DailyTaskDto[]> Handle(Query request, CancellationToken cancellationToken)
             {
                 if (request.Date == default || request.Date == null)
                     request.Date = DateTimeOffset.Now;
 
                 request.Date = request.Date.StartOfTheDay();
 
-                var database = _mongoConnection.GetDatabase();
+                var query = GetDailyTaskQuery(request);
 
-                var collectionExists = await MongoHelper.CheckCollectionExists(nameof(DailyTask).Pluralize(), database);
-
-                if (!collectionExists)
-                    return EmptyResult();
-
-                var collection = database.GetCollection<DailyTask>(nameof(DailyTask).Pluralize());
-
-                var filter = Builders<DailyTask>.Filter.Eq(e => e.Date, request.Date);
-
-                var documents = await collection.FindAsync(filter);
-
-                var dailyTasks = await documents.ToListAsync();
-
-                if (dailyTasks.Count() == 0)
-                    return EmptyResult();
+                if (request.CategoryId.HasValue)
+                    query = query.Where(e => e.CategoryId == request.CategoryId.Value);
 
                 if (request.State.HasValue)
-                    dailyTasks = dailyTasks.Where(e => e.State == request.State.Value).ToList();
+                    query = query.Where(e => e.State == request.State);
 
-                return dailyTasks
-                    .Select(e => new TaskDto
-                    {
-                        Id = e.Id,
-                        State = e.State,
-                        Date = e.Date,
-                        CreatedAt = e.CreatedAt,
-                        Title = e.Title,
-                        QuantityTasks = e.Items.Count(),
-                        QuantityTasksDone = e.Items.Where(g => g.Done).Count(),
-                        TaskItems = e.Items
-                            .Select(g => new TaskItemDto
-                            {
-                                Id = g.Id,
-                                Done = g.Done,
-                                Description = g.Description
-                            })
-                            .ToArray()
-                    })
-                    .ToArray();
+                query = query
+                    .Skip((request.PageIndex - 1) * request.PageSize)
+                    .Take(request.PageSize);
+
+                return await query.ToArrayAsync();
             }
 
-            private TaskDto[] EmptyResult()
+            private IQueryable<DailyTaskDto> GetDailyTaskQuery(Query request)
             {
-                return new List<TaskDto>().ToArray();
+                return _context
+                       .Set<DailyTask>()
+                       .AsNoTracking()
+                       .Where(e => e.Date == request.Date)
+                       .Select(e => new DailyTaskDto
+                       {
+                           Id = e.Id,
+                           Date = e.Date,
+                           Title = e.Title,
+                           State = e.State,
+                           CategoryId = e.CategoryId,
+                           QuantityTasks = e.Checklists.Count(),
+                           QuantityTasksDone = e.Checklists.Where(g => g.Done).Count(),
+                           Checklists = e.Checklists
+                               .Select(g => new ChecklistDto
+                               {
+                                   Id = g.Id,
+                                   Done = g.Done,
+                                   Description = g.Description
+                               })
+                               .ToArray()
+                       })
+                       .AsQueryable();
             }
         }
     }
