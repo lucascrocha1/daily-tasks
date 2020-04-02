@@ -1,38 +1,34 @@
-import { IDailyTaskList, IDailyTaskInsertEdit, TaskState, TaskItemDto } from '../../base/interface';
 import axiosConfiguration from '../../base/axios-configuration';
+import { Api } from '../../base/interface';
 
 class DailyTaskService {
     axios = axiosConfiguration.getAxios();
 
-    async list(query: { date: Date, state?: number }): Promise<IDailyTaskList[]> {
+    async list(query: Api.DailyTask.List.Query): Promise<Api.DailyTask.List.DailyTaskDto[]> {
         return this.axios.get('api/Task/List', { params: query }).then(e => e.data);
     }
 
-    async get(query: { id: string }): Promise<IDailyTaskInsertEdit> {
+    async get(query: Api.DailyTask.Get.Query): Promise<Api.DailyTask.Get.Dto> {
         return this.axios.get('api/Task/Get', { params: query }).then(e => e.data);
     }
 
-    async getTasks(query: { id: string }): Promise<TaskItemDto[]> {
-        return this.axios.get('api/Task/GetTasks', { params: query }).then(e => e.data);
-    }
-
-    async edit(command: IDailyTaskInsertEdit) {
+    async edit(command: Api.DailyTask.InsertEdit.Command) {
         await this.axios.put('api/Task/Edit', command);
     }
 
-    async insert(command: IDailyTaskInsertEdit) {
+    async insert(command: Api.DailyTask.InsertEdit.Command) {
         await this.axios.post('api/Task/Insert', command);
     }
 
-    async updateState(command: { id: string, state: TaskState }) {
+    async updateState(command: Api.DailyTask.UpdateState.Command) {
         await this.axios.post('api/task/UpdateState', command);
     }
 
-    async delete(command: { taskId: string }) {
+    async delete(command: Api.DailyTask.Delete.Command) {
         return this.axios.post('api/Task/Delete', command);
     }
 
-    async setAllTasksDone(command: { id: string }) {
+    async setAllTasksDone(command: Api.DailyTask.SetAllTasksDone.Command) {
         await this.axios.post('api/Task/SetAllTasksDone', command);
     }
 }

@@ -1,22 +1,26 @@
 import { Component, h, State, Listen } from '@stencil/core';
-import { IDailyTaskList, TaskState, TaskItemDto } from '../../../base/interface';
 import dailyTaskService from '../daily-task-service';
-import { formatDateString } from '../../../utils/utils';
+import { formatDateAsString } from '../../../utils/utils';
+import { Api } from '../../../base/interface';
 
 @Component({
     tag: 'daily-task-list',
     styleUrl: 'daily-task-list.scss'
 })
 export class DailyTaskList {
-    @State() state: IDailyTaskList[];
+    @State() state: Api.DailyTask.List.DailyTaskDto[];
 
-    dateFilter: Date = new Date();
+    dateFilter: string = formatDateAsString(new Date());
 
     taskOptionsController: HTMLDailyTaskOptionsElement;
 
     modalController: HTMLModalComponentElement;
 
     dailyTaskPage: HTMLDailyTaskInsertEditElement;
+
+    pageIndex: number = 1;
+
+    pageSize: number = 8;
 
     componentWillLoad() {
         this.loadState();
@@ -27,7 +31,7 @@ export class DailyTaskList {
         if (e.detail.ignoreDateChange)
             return;
 
-        this.dateFilter = e.detail.date;
+        this.dateFilter = formatDateAsString(e.detail.date);
 
         await this.loadState();
     }
@@ -40,10 +44,14 @@ export class DailyTaskList {
     async loadState() {
         this.state = null;
 
-        this.state = await dailyTaskService.list({ date: this.dateFilter, state: null });
+        this.state = await dailyTaskService.list({
+            date: this.dateFilter, 
+            pageIndex: this.pageIndex,
+            pageSize: this.pageSize
+        });
     }
 
-    async editTask(task: IDailyTaskList) {
+    async editTask(task: Api.DailyTask.List.DailyTaskDto) {
         // ToDo: rever isso aqui
         this.dailyTaskPage.modalController = this.modalController;
         this.dailyTaskPage.taskId = task.id;
@@ -90,11 +98,11 @@ export class DailyTaskList {
         await this.loadState();
     }
 
-    async updateState(id: string, state: TaskState) {
+    async updateState(id: number, state: Api.DailyTask.DailyTaskStateEnum) {
         await dailyTaskService.updateState({ id, state });
     }
 
-    openMoreOptions(e, task: IDailyTaskList) {
+    openMoreOptions(e, task: Api.DailyTask.List.DailyTaskDto) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -119,49 +127,49 @@ export class DailyTaskList {
             image.classList.add('btn-options-open');
     }
 
-    getTaskColor(state: TaskState) {
+    getTaskColor(state: Api.DailyTask.DailyTaskStateEnum) {
         switch (state) {
-            case TaskState.New:
+            case Api.DailyTask.DailyTaskStateEnum.New:
                 return "task-to-do";
-            case TaskState.Active:
+            case Api.DailyTask.DailyTaskStateEnum.Active:
                 return "task-active";
-            case TaskState.Closed:
+            case Api.DailyTask.DailyTaskStateEnum.Closed:
                 return "task-closed";
             default:
                 return "task-to-do";
         }
     }
 
-    getBorderColor(state: TaskState) {
+    getBorderColor(state: Api.DailyTask.DailyTaskStateEnum) {
         switch (state) {
-            case TaskState.New:
+            case Api.DailyTask.DailyTaskStateEnum.New:
                 return "border-to-do";
-            case TaskState.Active:
+            case Api.DailyTask.DailyTaskStateEnum.Active:
                 return "border-active";
-            case TaskState.Closed:
+            case Api.DailyTask.DailyTaskStateEnum.Closed:
                 return "border-closed";
             default:
                 return "border-to-do";
         }
     }
 
-    renderTaskItems(task: TaskItemDto, state: TaskState) {
+    renderChecklist(checklist: Api.DailyTask.List.ChecklistDto, state: Api.DailyTask.DailyTaskStateEnum) {
         return (
             <div class={`task-item-inner ${this.getBorderColor(state)}`}>
                 <div class="task-item-inner-title">
-                    {task.description}
+                    {checklist.description}
                 </div>
-                {task.done && <img class="check-task-done" src="/assets/svg/check.svg"></img>}
+                {checklist.done && <img class="check-task-done" src="/assets/svg/check.svg"></img>}
             </div>
         )
     }
 
-    renderState(task: IDailyTaskList) {
+    renderState(task: Api.DailyTask.List.DailyTaskDto) {
         let taskItemId = `task-item-${task.id}`;
         let taskImageId = `task-image-${task.id}`;
 
         return [
-            <div id={task.id}
+            <div id={task.id.toString()}
                 title={task.title}
                 draggable={true}
                 onDragStart={e => this.dragStart(e)}
@@ -180,11 +188,6 @@ export class DailyTaskList {
                         {task.quantityTasksDone} / {task.quantityTasks} tarefas feitas
                     </span>
                 </div>
-                <div class="task-createt-at">
-                    <span>
-                        Criado em {formatDateString(task.createdAt)}
-                    </span>
-                </div>
                 <div title="Options" class="btn-down-arrow" onClick={e => this.expandTasks(e, taskItemId, taskImageId)}>
                     <div class={`options-btn ${this.getTaskColor(task.state)}`}>
                         <img id={taskImageId} class="options-img" src="/assets/svg/down-arrow.svg"></img>
@@ -192,7 +195,7 @@ export class DailyTaskList {
                 </div>
             </div>,
             <div id={taskItemId} hidden class="task-items-background">
-                {task.taskItems.map(e => this.renderTaskItems(e, task.state))}
+                {task.checklists.map(e => this.renderChecklist(e, task.state))}
             </div>
         ];
     }
@@ -228,16 +231,16 @@ export class DailyTaskList {
                 this.renderModal()
             ]
 
-        let toDo = this.state.filter(e => e.state == TaskState.New);
+        let toDo = this.state.filter(e => e.state == Api.DailyTask.DailyTaskStateEnum.New);
 
-        let doing = this.state.filter(e => e.state == TaskState.Active);
+        let doing = this.state.filter(e => e.state == Api.DailyTask.DailyTaskStateEnum.Active);
 
-        let done = this.state.filter(e => e.state == TaskState.Closed)
+        let done = this.state.filter(e => e.state == Api.DailyTask.DailyTaskStateEnum.Closed)
 
         return [
             <div class="tasks">
                 <div class="task-self"
-                    id={TaskState.New.toString()}
+                    id={Api.DailyTask.DailyTaskStateEnum.New.toString()}
                     onDrop={e => this.onDrop(e)}
                     onDragOver={e => this.dragOver(e)}>
                     <div>
@@ -246,7 +249,7 @@ export class DailyTaskList {
                     {toDo.map(e => this.renderState(e))}
                 </div>
                 <div class="task-self"
-                    id={TaskState.Active.toString()}
+                    id={Api.DailyTask.DailyTaskStateEnum.Active.toString()}
                     onDrop={e => this.onDrop(e)}
                     onDragOver={e => this.dragOver(e)}>
                     <div>
@@ -255,7 +258,7 @@ export class DailyTaskList {
                     {doing.map(e => this.renderState(e))}
                 </div>
                 <div class="task-self"
-                    id={TaskState.Closed.toString()}
+                    id={Api.DailyTask.DailyTaskStateEnum.Closed.toString()}
                     onDrop={e => this.onDrop(e)}
                     onDragOver={e => this.dragOver(e)}>
                     <div>
@@ -263,7 +266,7 @@ export class DailyTaskList {
                     </div>
                     {done.map(e => this.renderState(e))}
                 </div>
-            </div>, 
+            </div>,
             this.renderModal(),
             this.renderFabAddTask(),
             <daily-task-options ref={e => this.taskOptionsController = e as any}></daily-task-options>,

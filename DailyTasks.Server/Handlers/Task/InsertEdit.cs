@@ -61,6 +61,8 @@
                         CreatedAt = DateTimeOffset.Now,
                         CreatedBy = userId
                     };
+
+                    await _context.AddAsync(dailyTask);
                 }
                 else
                     dailyTask = await GetDailyTask(request.Id.Value);
@@ -77,6 +79,7 @@
             {
                 return await _context
                     .Set<DailyTask>()
+                    .Include(e => e.Checklists)
                     .Where(e => e.Id == id)
                     .FirstOrDefaultAsync();
             }
@@ -92,6 +95,8 @@
 
                 if (dailyTask.Checklists == null)
                     dailyTask.Checklists = new List<DailyTaskChecklist>();
+
+                request.Checklists = request.Checklists.Where(e => !string.IsNullOrEmpty(e.Description)).ToArray();
 
                 var requestTaskItemIds = request.Checklists.Select(e => e.Id).Where(e => e.HasValue);
 

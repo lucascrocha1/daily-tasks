@@ -30,7 +30,7 @@
 
             public string Title { get; set; }
 
-            public int CategoryId { get; set; }
+            public int? CategoryId { get; set; }
 
             public int QuantityTasks { get; set; }
 
@@ -41,6 +41,8 @@
             public DailyTaskStateEnum State { get; set; }
 
             public ChecklistDto[] Checklists { get; set; }
+
+            public string CategoryDescription { get; set; }
         }
 
         public class ChecklistDto
@@ -97,6 +99,7 @@
                            State = e.State,
                            CategoryId = e.CategoryId,
                            QuantityTasks = e.Checklists.Count(),
+                           CategoryDescription = e.Category.Description,
                            QuantityTasksDone = e.Checklists.Where(g => g.Done).Count(),
                            Checklists = e.Checklists
                                .Select(g => new ChecklistDto

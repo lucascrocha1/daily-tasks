@@ -8,7 +8,7 @@
 
 import { HTMLStencilElement, JSXBase } from '@stencil/core/internal';
 import {
-  IDailyTaskList,
+  Api,
 } from './base/interface';
 
 export namespace Components {
@@ -17,15 +17,16 @@ export namespace Components {
     'currentSelectedDate': Date;
     'ignoreDateChange': boolean;
   }
+  interface CategoryList {}
   interface DailyTaskInsertEdit {
     'loadState': () => Promise<void>;
     'modalController': HTMLModalComponentElement;
-    'taskId': string;
+    'taskId': number;
   }
   interface DailyTaskList {}
   interface DailyTaskOptions {
     'openClose': (e: any) => Promise<void>;
-    'task': IDailyTaskList;
+    'task': Api.DailyTask.List.DailyTaskDto;
   }
   interface HeaderComponent {
     'hideCalendar': boolean;
@@ -55,6 +56,12 @@ declare global {
   var HTMLCalendarComponentElement: {
     prototype: HTMLCalendarComponentElement;
     new (): HTMLCalendarComponentElement;
+  };
+
+  interface HTMLCategoryListElement extends Components.CategoryList, HTMLStencilElement {}
+  var HTMLCategoryListElement: {
+    prototype: HTMLCategoryListElement;
+    new (): HTMLCategoryListElement;
   };
 
   interface HTMLDailyTaskInsertEditElement extends Components.DailyTaskInsertEdit, HTMLStencilElement {}
@@ -101,6 +108,7 @@ declare global {
   interface HTMLElementTagNameMap {
     'app-root': HTMLAppRootElement;
     'calendar-component': HTMLCalendarComponentElement;
+    'category-list': HTMLCategoryListElement;
     'daily-task-insert-edit': HTMLDailyTaskInsertEditElement;
     'daily-task-list': HTMLDailyTaskListElement;
     'daily-task-options': HTMLDailyTaskOptionsElement;
@@ -117,14 +125,15 @@ declare namespace LocalJSX {
     'currentSelectedDate'?: Date;
     'ignoreDateChange'?: boolean;
   }
+  interface CategoryList {}
   interface DailyTaskInsertEdit {
     'modalController'?: HTMLModalComponentElement;
-    'taskId'?: string;
+    'taskId'?: number;
   }
   interface DailyTaskList {}
   interface DailyTaskOptions {
     'onTaskUpdatedEvent'?: (event: CustomEvent<any>) => void;
-    'task'?: IDailyTaskList;
+    'task'?: Api.DailyTask.List.DailyTaskDto;
   }
   interface HeaderComponent {
     'hideCalendar'?: boolean;
@@ -137,6 +146,7 @@ declare namespace LocalJSX {
   interface IntrinsicElements {
     'app-root': AppRoot;
     'calendar-component': CalendarComponent;
+    'category-list': CategoryList;
     'daily-task-insert-edit': DailyTaskInsertEdit;
     'daily-task-list': DailyTaskList;
     'daily-task-options': DailyTaskOptions;
@@ -155,6 +165,7 @@ declare module "@stencil/core" {
     interface IntrinsicElements {
       'app-root': LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
       'calendar-component': LocalJSX.CalendarComponent & JSXBase.HTMLAttributes<HTMLCalendarComponentElement>;
+      'category-list': LocalJSX.CategoryList & JSXBase.HTMLAttributes<HTMLCategoryListElement>;
       'daily-task-insert-edit': LocalJSX.DailyTaskInsertEdit & JSXBase.HTMLAttributes<HTMLDailyTaskInsertEditElement>;
       'daily-task-list': LocalJSX.DailyTaskList & JSXBase.HTMLAttributes<HTMLDailyTaskListElement>;
       'daily-task-options': LocalJSX.DailyTaskOptions & JSXBase.HTMLAttributes<HTMLDailyTaskOptionsElement>;

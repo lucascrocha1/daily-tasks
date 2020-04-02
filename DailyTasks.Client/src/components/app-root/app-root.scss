@@ -1,0 +1,56 @@
+app-root {
+    .content-root {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .content-page{
+        width: 100%;
+    }
+
+    .side-menu-collapsable {
+        transition: .3s;
+        width: 80px;
+    }
+
+    .menu-text {
+        display: none;
+        transition: .4s;
+        margin-left: 8px;
+    }
+
+    .img-menu-background {
+        margin-top: 4px;
+    }
+
+    .img-menu {
+        height: 16px;
+    }
+
+    .side-menu-collapsable:hover {
+        width: 350px;
+
+        .menu-text {
+            display: block;
+        }
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 30px;
+        cursor: pointer;
+        transition: .1s;
+        padding: 16px;
+    }
+
+    .menu-item:hover {
+        background-color: #c5c4c4;
+    }
+
+    .side-menu {
+        height: calc(100vh - 60px);
+        background-color: #f4f4f4;
+    }
+}

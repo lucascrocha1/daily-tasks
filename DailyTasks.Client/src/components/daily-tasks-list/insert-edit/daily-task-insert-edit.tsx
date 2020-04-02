@@ -1,18 +1,18 @@
 import { Component, h, Prop, State, Listen, Method } from '@stencil/core';
-import { IDailyTaskInsertEdit, TaskState, TaskItemDto } from '../../../base/interface';
 import dailyTaskService from '../daily-task-service';
-import dayjs from 'dayjs';
+import { Api } from '../../../base/interface';
+import { formatDateAsString } from '../../../utils/utils';
 
 @Component({
     tag: 'daily-task-insert-edit',
     styleUrl: 'daily-task-insert-edit.scss'
 })
 export class DailyTaskInsertEdit {
-    @State() state: IDailyTaskInsertEdit;
+    @State() state: Api.DailyTask.InsertEdit.Command;
 
     @State() selectedDate: Date;
 
-    @Prop() taskId: string;
+    @Prop() taskId: number;
 
     @Prop() modalController: HTMLModalComponentElement;
 
@@ -30,7 +30,7 @@ export class DailyTaskInsertEdit {
 
     @Listen('dayChanged', { target: 'window' })
     async dayChangedHandler(e: CustomEvent) {
-        this.state.date = e.detail.date;
+        this.state.date = formatDateAsString(e.detail.date);
     }
 
     setStateValue() {
@@ -48,12 +48,12 @@ export class DailyTaskInsertEdit {
         }
         else {
             this.state = {
-                date: new Date().toString(),
+                date: formatDateAsString(new Date()),
                 title: null,
                 description: null,
                 id: null,
-                state: TaskState.New,
-                taskItems: [{
+                state: Api.DailyTask.DailyTaskStateEnum.New,
+                checklists: [{
                     description: null,
                     done: false,
                     id: null
@@ -75,14 +75,14 @@ export class DailyTaskInsertEdit {
     }
 
     ensureOneDescriptionIsNull() {
-        let lastTask = this.state.taskItems.slice(-1).pop();
+        let lastTask = this.state.checklists.slice(-1).pop();
 
         if (lastTask && !!lastTask.description)
             this.addNewTask()
     }
 
     addNewTask() {
-        this.state.taskItems.push({
+        this.state.checklists.push({
             id: null,
             description: null,
             done: false
@@ -93,10 +93,10 @@ export class DailyTaskInsertEdit {
         }
     }
 
-    handleTaskChange(e, taskItem: TaskItemDto) {
+    handleTaskChange(e, checklist: Api.DailyTask.InsertEdit.ChecklistDto) {
         let value = e.target.value;
 
-        taskItem.description = value;
+        checklist.description = value;
 
         this.ensureOneDescriptionIsNull();
     }
@@ -105,12 +105,12 @@ export class DailyTaskInsertEdit {
         this.state.state = +e.target.value;
     }
 
-    removeTaskItem(e, taskItem: TaskItemDto) {
+    removeTaskItem(e, checklist: Api.DailyTask.InsertEdit.ChecklistDto) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
 
-        this.state.taskItems = this.state.taskItems.filter(e => e != taskItem);
+        this.state.checklists = this.state.checklists.filter(e => e != checklist);
 
         this.state = {
             ...this.state
@@ -119,42 +119,12 @@ export class DailyTaskInsertEdit {
         this.ensureOneDescriptionIsNull();
     }
 
-    renderTaskItem(taskItem: TaskItemDto) {
-        return [
-            <div class="task-item form-group">
-                <div class="btn-delete-background">
-                    <button class="btn-delete-task" onClick={(e) => this.removeTaskItem(e, taskItem)}>
-                        <img class="img-delete-task" src="/assets/svg/delete.svg"></img>
-                    </button>
-                </div>
-                <div>
-                    <input
-                        placeholder="Description"
-                        value={taskItem.description}
-                        class="input"
-                        onInput={(e => this.handleTaskChange(e, taskItem))}
-                        type="text">
-                    </input>
-                </div>
-                <div class="done-background">
-                    <label class="done-label">Done</label>
-                    <br></br>
-                    <input class="input-checkbox" type="checkbox" checked={taskItem.done}></input>
-                </div>
-            </div>
-        ]
-    }
-
     async submit(e) {
         this.loaderController.show();
 
         e.preventDefault();
 
-        let taskId = this.taskId;
-
-        this.state.date = dayjs(this.state.date).format('YYYY-MM-DDTHH:mm:ssZ')
-
-        if (taskId)
+        if (this.taskId)
             await dailyTaskService.edit(this.state);
         else
             await dailyTaskService.insert(this.state);
@@ -166,6 +136,32 @@ export class DailyTaskInsertEdit {
 
     async closeModal() {
         await this.modalController.dismiss();
+    }   
+
+    renderChecklist(checklist: Api.DailyTask.InsertEdit.ChecklistDto) {
+        return [
+            <div class="task-item form-group">
+                <div class="btn-delete-background">
+                    <button class="btn-delete-task" onClick={(e) => this.removeTaskItem(e, checklist)}>
+                        <img class="img-delete-task" src="/assets/svg/delete.svg"></img>
+                    </button>
+                </div>
+                <div>
+                    <input
+                        placeholder="Description"
+                        value={checklist.description}
+                        class="input"
+                        onInput={(e => this.handleTaskChange(e, checklist))}
+                        type="text">
+                    </input>
+                </div>
+                <div class="done-background">
+                    <label class="done-label">Done</label>
+                    <br></br>
+                    <input class="input-checkbox" type="checkbox" checked={checklist.done}></input>
+                </div>
+            </div>
+        ]
     }
 
     render() {
@@ -215,9 +211,9 @@ export class DailyTaskInsertEdit {
                                         required
                                         onChange={(e) => this.handleSelectChange(e)}
                                         class="input">
-                                        <option value={TaskState.New as any}>To do</option>
-                                        <option value={TaskState.Active as any}>Doing</option>
-                                        <option value={TaskState.Closed as any}>Done</option>
+                                        <option value={Api.DailyTask.DailyTaskStateEnum.New as any}>To do</option>
+                                        <option value={Api.DailyTask.DailyTaskStateEnum.Active as any}>Doing</option>
+                                        <option value={Api.DailyTask.DailyTaskStateEnum.Closed as any}>Done</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -225,7 +221,7 @@ export class DailyTaskInsertEdit {
                                         <span>Tasks</span>
                                     </div>
                                     <div>
-                                        {this.state.taskItems.map(e => this.renderTaskItem(e))}
+                                        {this.state.checklists.map(e => this.renderChecklist(e))}
                                     </div>
                                 </div>
                             </div>

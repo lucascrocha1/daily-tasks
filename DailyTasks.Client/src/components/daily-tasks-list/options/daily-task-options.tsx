@@ -1,7 +1,7 @@
 import { Component, h, Prop, Method, State, Event } from '@stencil/core';
-import { IDailyTaskList } from '../../../base/interface';
 import dailyTaskService from '../daily-task-service';
 import { EventEmitter } from '@stencil/router/dist/types/stencil.core';
+import { Api } from '../../../base/interface';
 
 @Component({
     tag: 'daily-task-options',
@@ -10,7 +10,7 @@ import { EventEmitter } from '@stencil/router/dist/types/stencil.core';
 export class DailyTaskOptions {
     @State() popoverClosed = true;
 
-    @Prop() task: IDailyTaskList;
+    @Prop() task: Api.DailyTask.List.DailyTaskDto;
 
     @Event() taskUpdatedEvent: EventEmitter;
 
@@ -58,7 +58,7 @@ export class DailyTaskOptions {
         if (confirm('Isso não pode ser desfeito')) {
             await this.loaderController.show();
 
-            await dailyTaskService.delete({ taskId: this.task.id });
+            await dailyTaskService.delete({ id: this.task.id });
             this.taskUpdatedEvent.emit();
             this.popoverClosed = true;
 
