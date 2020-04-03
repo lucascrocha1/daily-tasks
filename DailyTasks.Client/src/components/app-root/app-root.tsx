@@ -23,9 +23,9 @@ export class AppRoot {
 			<div class="container">
 				<header-component></header-component>
 				<div class="content-root">
-					<div class="side-menu side-menu-collapsable">
+					{/* <div class="side-menu side-menu-collapsable">
 						{this.renderMenu()}
-					</div>
+					</div> */}
 					<div class="content-page">
 						<main>
 							<stencil-router>

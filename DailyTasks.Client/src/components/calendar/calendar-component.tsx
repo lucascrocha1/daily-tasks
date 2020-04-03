@@ -1,5 +1,11 @@
 import { Component, h, State, Prop } from '@stencil/core';
 import calendarService from './calendar-service';
+import { formatDateCalendar } from '../../utils/utils';
+
+enum SegmentEnum {
+    Months = 1,
+    Year = 2
+}
 
 @Component({
     tag: 'calendar-component',
@@ -16,6 +22,8 @@ export class CalendarComponent {
 
     @State() numberOfDaysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
 
+    @State() segmentSelected: SegmentEnum;
+
     @Prop() currentSelectedDate: Date;
 
     @Prop() ignoreDateChange: boolean;
@@ -23,6 +31,8 @@ export class CalendarComponent {
     months = calendarService.getMonths();
 
     componentWillLoad() {
+        this.segmentSelected = SegmentEnum.Months;
+
         if (this.currentSelectedDate)
             this.setSelectedDate();
     }
@@ -84,6 +94,12 @@ export class CalendarComponent {
         e.stopImmediatePropagation();
     }
 
+    getCurrentFormatedDate() {
+        let date = formatDateCalendar(this.selectedDate);
+
+        return date.charAt(0).toUpperCase() + date.slice(1);
+    }
+
     renderDays() {
         let resultSunday = [];
         let resultMonday = [];
@@ -138,25 +154,25 @@ export class CalendarComponent {
             while (i < monthStartsInDay.getDay()) {
                 switch (i) {
                     case 0:
-                        resultSunday.unshift(<span class="day-hidden">0</span>)
+                        resultSunday.unshift(<span class="day day-hidden">0</span>)
                         break;
                     case 1:
-                        resultMonday.unshift(<span class="day-hidden">0</span>)
+                        resultMonday.unshift(<span class="day day-hidden">0</span>)
                         break;
                     case 2:
-                        resultTuesday.unshift(<span class="day-hidden">0</span>)
+                        resultTuesday.unshift(<span class="day day-hidden">0</span>)
                         break;
                     case 3:
-                        resultWednesday.unshift(<span class="day-hidden">0</span>)
+                        resultWednesday.unshift(<span class="day day-hidden">0</span>)
                         break;
                     case 4:
-                        resultThursday.unshift(<span class="day-hidden">0</span>)
+                        resultThursday.unshift(<span class="day day-hidden">0</span>)
                         break;
                     case 5:
-                        resultFriday.unshift(<span class="day-hidden">0</span>)
+                        resultFriday.unshift(<span class="day day-hidden">0</span>)
                         break;
                     case 6:
-                        resultSaturday.unshift(<span class="day-hidden">0</span>)
+                        resultSaturday.unshift(<span class="day day-hidden">0</span>)
                         break;
                 }
 
@@ -189,29 +205,78 @@ export class CalendarComponent {
         ];
     }
 
-    render() {
+    renderMonths() {
         return (
-            <div class="calendar" onClick={(e) => this.keepCalendarOpen(e)}>
-                <div class="month-changeable">
-                    <img class="img-arrow" decoding="async" src="/assets/svg/left-arrow.svg" onClick={(e) => this.changeDate(e, -1)}></img>
-                    <span class="month-name">{this.renderCurrentMonthName()} - {this.currentYear}</span>
-                    <img class="img-arrow" decoding="async" src="/assets/svg/right-arrow.svg" onClick={(e) => this.changeDate(e, +1)}></img>
+            <div class="months">
+                <div class="calendar-days">
+                    <span>D</span>
+                    <span>S</span>
+                    <span>T</span>
+                    <span>Q</span>
+                    <span>Q</span>
+                    <span>S</span>
+                    <span>S</span>
                 </div>
-                <div class="months">
-                    <div class="calendar-days">
-                        <span>D</span>
-                        <span>S</span>
-                        <span>T</span>
-                        <span>Q</span>
-                        <span>Q</span>
-                        <span>S</span>
-                        <span>S</span>
-                    </div>
-                    <div class="calendar-days-weeks">
-                        {this.renderDays()}
-                    </div>
+                <div class="calendar-days-weeks">
+                    {this.renderDays()}
                 </div>
             </div>
-        );
+        )
+    }
+
+    renderYears() {
+        return (
+            <div>
+                
+            </div>
+        )
+    }
+
+    render() {
+        return [
+            <div class="calendar" onClick={(e) => this.keepCalendarOpen(e)}>
+                <div class="calendar-header">
+                    <div class="selecionar-data-title">
+                        <span class="selecionar-data">Selecionar data</span>
+                    </div>
+                    <div class="title-background">
+                        <div>
+                            <span class="calendar-title">{this.getCurrentFormatedDate()}</span>
+                        </div>
+                        <div>
+                            <img decoding="async" class="edit-date" src="/assets/svg/edit.svg"></img>
+                        </div>
+                    </div>
+                </div>
+                <div class="months-changeable">
+                    <div class="year-selector">
+                        <div>
+                            <span class="month-name">{this.renderCurrentMonthName()} {this.currentYear}</span>
+                        </div>
+                        <div>
+                            <img decoding="async" class="img-select" src="/assets/svg/down-arrow-select.svg"></img>
+                        </div>
+                    </div>
+                    <div class="months-img">
+                        <img class="img-arrow img-arrow-left" decoding="async" src="/assets/svg/left-arrow.svg" onClick={(e) => this.changeDate(e, -1)}></img>
+                        <img class="img-arrow" decoding="async" src="/assets/svg/right-arrow.svg" onClick={(e) => this.changeDate(e, +1)}></img>
+                    </div>
+                </div>
+                {
+                    this.segmentSelected == SegmentEnum.Months
+                        ? this.renderMonths()
+                        : this.renderYears()
+                }
+                <div class="btns-calendar">
+                    <button class="btn-clear btn-secondary">
+                        Cancelar
+                    </button>
+                    <button class="btn-clear btn-secondary">
+                        OK
+                    </button>
+                </div>
+            </div>,
+            <div class="calendar-backdrop"></div>
+        ];
     }
 }

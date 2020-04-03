@@ -51,6 +51,14 @@ export class HeaderComponent {
         )
     }
 
+    renderSearchbar() {
+        return (
+            <div class="toolbar-search">
+                <input placeholder="Filtre por titulo, descrição ou data" />
+            </div>
+        )
+    }
+
     render() {
         return [
             <div class="header-component">
@@ -70,6 +78,7 @@ export class HeaderComponent {
                     </div>
                 }
             </div>,
+            // this.renderSearchbar(),
             <calendar-component class={`calendar-component ${this.calendarHidden ? 'calendar-hidden' : 'calendar-open'}`} role="tooltip"></calendar-component>
         ];
     }

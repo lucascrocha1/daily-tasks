@@ -146,9 +146,15 @@ daily-task-list {
     }
 
     .fab-task {
-        background-color: #fff275;
+        background-color: #c8b900;
         border-radius: 50px;
-        width: 30px;
+        width: 25px;
+        height: 25px;
+        max-width: 25px;
+        max-height: 25px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         padding: 12px;
         position: fixed;
         bottom: 16px;
@@ -162,7 +168,7 @@ daily-task-list {
     }
 
     .options-img {
-        transition: .3s;
+        transition: 0.3s;
         width: 16px;
     }
 
@@ -174,7 +180,7 @@ daily-task-list {
         display: flex;
         justify-content: center;
         align-items: center;
-        transition: .3s;
+        transition: 0.3s;
     }
 
     .btn-options-open {

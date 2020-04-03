@@ -1,36 +1,88 @@
 calendar-component {
-  .month-name {
-    font-size: 20px;
-  }
-
   .calendar {
-    border-left: 1px solid #fff275;
-    border-bottom: 1px solid #fff275;
-    border-right: 1px solid #fff275;
     display: inline-block;
     background-color: white;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 7;
+    border-radius: 5px;
+    width: calc(100% - 32px);
   }
 
-  .current-day {
-    background-color: tomato;
+  .calendar-title {
+    font-size: 24px;
+  }
+
+  .selecionar-data-title {
+    margin-bottom: 24px;
+  }
+
+  .selecionar-data {
+    font-size: 14px;
+    text-transform: uppercase;
+  }
+
+  .edit-date {
+    width: 18px;
+  }
+
+  .title-background {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btns-calendar {
+    padding-right: 16px;
+    text-align: end;    
+  }
+
+  .calendar-header {
+    background-color: #fcd734;
+    border-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    padding: 16px;
+  }
+
+  .calendar-backdrop {
+    background-color: black;
+    opacity: 0.3;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
   }
 
   .selected-day {
-    background-color: tomato !important;
+    background-color: #fcd734 !important;
+    border-radius: 100%;
+    text-align: center;
   }
 
   .current-day {
-    background-color: #e8e8e8;
+    border-radius: 100%;
+    border: 1px solid black !important;
+    text-align: center;
   }
 
   .calendar-days {
-    margin-bottom: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 6px;
+    padding-right: 6px;
   }
 
   .calendar-days span {
-    font-size: 20px;
-    margin-right: 16px;
-    padding: 4px;
+    font-size: 15px;
+    padding: 8px;
   }
 
   .calendar-days-week {
@@ -39,40 +91,64 @@ calendar-component {
   }
 
   .day {
-    margin-right: 12px;
-    margin-bottom: 8px;
     cursor: pointer;
-    padding: 4px;
+    margin-bottom: 12px;
+    width: 35px;
+    display: flex;
+    height: 35px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
   }
 
   .day-hidden {
-    margin-right: 12px;
-    margin-bottom: 8px;
-    padding: 4px;
     visibility: hidden;
   }
 
   .calendar-days-weeks {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
   }
 
   .img-arrow {
     cursor: pointer;
-    height: 16px;
+    height: 12px;
+  }
+
+  .img-select {
+    height: 12px;
+  }
+
+  .month-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 12px;
+  }
+
+  .year-selector {
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
   }
 
   .months {
-    padding: 16px;
+    padding: 12px 8px 0 8px;
   }
 
-  .month-changeable {
+  .months-changeable {
     display: flex;
     flex-direction: row;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 8px;
+    align-items: center;
     padding: 16px;
-    background-color: #fff275;
+    margin-top: 4px;
+  }
+
+  .img-arrow-left {
+    margin-right: 32px;
   }
 }
