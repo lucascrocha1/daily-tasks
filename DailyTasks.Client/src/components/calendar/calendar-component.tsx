@@ -30,11 +30,50 @@ export class CalendarComponent {
 
     months = calendarService.getMonths();
 
+    monthController: HTMLDivElement;
+
     componentWillLoad() {
         this.segmentSelected = SegmentEnum.Months;
 
         if (this.currentSelectedDate)
             this.setSelectedDate();
+    }
+
+    registerSwipe() {
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        let rect = this.monthController.getBoundingClientRect();;
+        //let monthHeight = rect.height;
+        let monthWidth = rect.width;
+        
+
+        this.monthController.addEventListener('touchstart', e => {
+            let touch = e.touches[0];
+
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        });
+
+        this.monthController.addEventListener('touchmove', (e) => {
+            if (!touchStartX || !touchStartY)
+                return;
+
+            let x = e.touches[0].clientX;
+            let y = e.touches[0].clientY;
+
+            let diffX = touchStartX - x;
+            let diffY = touchStartY - y;
+
+            console.log(diffX);
+
+            if (Math.abs(diffX) > Math.abs(diffY) && (Math.abs(diffX) > monthWidth)) {
+                if (diffX > 0)
+                    this.changeDate(null, - 1);
+                else
+                    this.changeDate(null, + 1);
+            }
+        });
     }
 
     setSelectedDate() {
@@ -46,9 +85,11 @@ export class CalendarComponent {
     }
 
     changeDate(e, increment: number) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+        }
 
         this.currentMonth += increment;
 
@@ -207,7 +248,7 @@ export class CalendarComponent {
 
     renderMonths() {
         return (
-            <div class="months">
+            <div ref={e => this.monthController = e as any} class="months">
                 <div class="calendar-days">
                     <span>D</span>
                     <span>S</span>
@@ -227,14 +268,14 @@ export class CalendarComponent {
     renderYears() {
         return (
             <div>
-                
+
             </div>
         )
     }
 
     render() {
         return [
-            <div class="calendar" onClick={(e) => this.keepCalendarOpen(e)}>
+            <div class="calendar" onLoad={() => this.registerSwipe()} onClick={(e) => this.keepCalendarOpen(e)}>
                 <div class="calendar-header">
                     <div class="selecionar-data-title">
                         <span class="selecionar-data">Selecionar data</span>
