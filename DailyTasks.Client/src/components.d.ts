@@ -15,7 +15,9 @@ export namespace Components {
   interface AppRoot {}
   interface CalendarComponent {
     'currentSelectedDate': Date;
-    'ignoreDateChange': boolean;
+    'dismiss': () => Promise<void>;
+    'isVisible': () => Promise<boolean>;
+    'show': () => Promise<void>;
   }
   interface CategoryList {}
   interface DailyTaskInsertEdit {
@@ -28,10 +30,7 @@ export namespace Components {
     'openClose': (e: any) => Promise<void>;
     'task': Api.DailyTask.List.DailyTaskDto;
   }
-  interface HeaderComponent {
-    'hideCalendar': boolean;
-    'showBackButton': boolean;
-  }
+  interface HeaderComponent {}
   interface LoaderComponent {
     'dismiss': () => Promise<void>;
     'show': () => Promise<void>;
@@ -123,7 +122,6 @@ declare namespace LocalJSX {
   interface AppRoot {}
   interface CalendarComponent {
     'currentSelectedDate'?: Date;
-    'ignoreDateChange'?: boolean;
   }
   interface CategoryList {}
   interface DailyTaskInsertEdit {
@@ -135,10 +133,7 @@ declare namespace LocalJSX {
     'onTaskUpdatedEvent'?: (event: CustomEvent<any>) => void;
     'task'?: Api.DailyTask.List.DailyTaskDto;
   }
-  interface HeaderComponent {
-    'hideCalendar'?: boolean;
-    'showBackButton'?: boolean;
-  }
+  interface HeaderComponent {}
   interface LoaderComponent {}
   interface ModalComponent {}
   interface SpinnerComponent {}

@@ -21,3 +21,31 @@ export function formatDateCalendar(date: Date) {
 export function formatDateAsString(date: Date): string {
     return dayjs(date).format('YYYY-MM-DDTHH:mm:ssZ')
 }
+
+export function validateDate(day: string, month: string, year: string) {
+    let date = `${year}/${month}/${day}`;
+    let format = 'YYYY/MM/DD';
+
+    return dayjs(date, format).format(format) === date;
+}
+
+export function maskDate(e: any, value: string) {
+    if (!value)
+        return;
+
+    value = value.trim();
+
+    let lastChar = value.substr(value.length - 1);
+
+    let regex = /^\d+$/;
+
+    if (!regex.test(lastChar)) {
+        e.srcElement.value = value.substring(0, value.length - 1);
+        return;
+    }
+
+    if (value.length == 2 || value.length == 5)
+        value += '/';
+
+    return value;
+}

@@ -226,7 +226,7 @@ export class DailyTaskInsertEdit {
                                 </div>
                             </div>
                             <div class="calendar-component">
-                                <calendar-component ignoreDateChange={true} currentSelectedDate={this.selectedDate}></calendar-component>
+                                <calendar-component currentSelectedDate={this.selectedDate}></calendar-component>
                             </div>
                         </div>
                         <div class="btn-background">

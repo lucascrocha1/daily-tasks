@@ -1,10 +1,15 @@
-import { Component, h, State, Prop } from '@stencil/core';
+import { Component, h, State, Prop, Method } from '@stencil/core';
 import calendarService from './calendar-service';
-import { formatDateCalendar } from '../../utils/utils';
+import { formatDateCalendar, validateDate, maskDate, formatDate } from '../../utils/utils';
 
 enum SegmentEnum {
     Months = 1,
     Year = 2
+}
+
+enum DateType {
+    Calendar = 1,
+    Input = 2
 }
 
 @Component({
@@ -12,6 +17,8 @@ enum SegmentEnum {
     styleUrl: 'calendar-component.scss'
 })
 export class CalendarComponent {
+    @State() hidden: boolean = true;
+
     @State() currentMonth = new Date().getMonth() + 1;
 
     @State() currentYear = new Date().getFullYear();
@@ -22,31 +29,56 @@ export class CalendarComponent {
 
     @State() numberOfDaysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
 
-    @State() segmentSelected: SegmentEnum;
+    @State() segmentSelected: SegmentEnum = SegmentEnum.Months;
+
+    @State() dateType: DateType = DateType.Calendar;
+
+    @State() data: string = '';
+
+    @State() dateHasError: boolean = false;
+
+    @State() headerInputCalendar: string = 'Entre com a data';
 
     @Prop() currentSelectedDate: Date;
-
-    @Prop() ignoreDateChange: boolean;
 
     months = calendarService.getMonths();
 
     monthController: HTMLDivElement;
 
-    componentWillLoad() {
-        this.segmentSelected = SegmentEnum.Months;
+    swipeRegistered: boolean = false;
 
+    componentWillLoad() {
         if (this.currentSelectedDate)
             this.setSelectedDate();
     }
 
+    componentDidRender() {
+        if (this.monthController && !this.swipeRegistered)
+            this.registerSwipe();
+    }
+
+    @Method()
+    async show() {
+        this.hidden = false;
+    }
+
+    @Method()
+    async dismiss() {
+        this.hidden = true;
+        this.dateType = DateType.Calendar;
+        this.data = '';
+    }
+
+    @Method()
+    async isVisible() {
+        return !this.hidden;
+    }
+
     registerSwipe() {
+        this.swipeRegistered = true;
+
         let touchStartX = 0;
         let touchStartY = 0;
-
-        let rect = this.monthController.getBoundingClientRect();;
-        //let monthHeight = rect.height;
-        let monthWidth = rect.width;
-        
 
         this.monthController.addEventListener('touchstart', e => {
             let touch = e.touches[0];
@@ -55,23 +87,22 @@ export class CalendarComponent {
             touchStartY = touch.clientY;
         });
 
-        this.monthController.addEventListener('touchmove', (e) => {
-            if (!touchStartX || !touchStartY)
-                return;
-
-            let x = e.touches[0].clientX;
-            let y = e.touches[0].clientY;
+        this.monthController.addEventListener('touchend', (e) => {
+            let x = e.changedTouches[0].clientX;
+            let y = e.changedTouches[0].clientY;
 
             let diffX = touchStartX - x;
             let diffY = touchStartY - y;
 
-            console.log(diffX);
-
-            if (Math.abs(diffX) > Math.abs(diffY) && (Math.abs(diffX) > monthWidth)) {
-                if (diffX > 0)
-                    this.changeDate(null, - 1);
-                else
-                    this.changeDate(null, + 1);
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (diffX < 0) {
+                    this.changeDate(- 1);
+                    return false;
+                }
+                else {
+                    this.changeDate(+ 1);
+                    return false;
+                }
             }
         });
     }
@@ -84,13 +115,7 @@ export class CalendarComponent {
         this.numberOfDaysInMonth = new Date(this.currentYear, this.currentMonth, 0).getDate();
     }
 
-    changeDate(e, increment: number) {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-        }
-
+    changeDate(increment: number) {
         this.currentMonth += increment;
 
         if (this.currentMonth > 12) {
@@ -106,6 +131,10 @@ export class CalendarComponent {
         this.numberOfDaysInMonth = new Date(this.currentYear, this.currentMonth, 0).getDate();
     }
 
+    setDateType(dateType: DateType) {
+        this.dateType = dateType;
+    }
+
     renderCurrentMonthName() {
         return this.months.find(e => e.number == this.currentMonth).name;
     }
@@ -118,27 +147,59 @@ export class CalendarComponent {
         let date = new Date(this.currentYear, this.currentMonth - 1, day);
 
         this.selectedDate = date;
-
-        let evt = new CustomEvent('dayChanged', {
-            detail: {
-                date,
-                ignoreDateChange: this.ignoreDateChange
-            }
-        });
-
-        window.dispatchEvent(evt);
-    }
-
-    keepCalendarOpen(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
     }
 
     getCurrentFormatedDate() {
         let date = formatDateCalendar(this.selectedDate);
 
         return date.charAt(0).toUpperCase() + date.slice(1);
+    }
+
+    inputDataChange(e) {
+        let value = e.target.value as string;
+
+        let formatedDate = maskDate(e, value);
+
+        if (!formatDate)
+            return;
+
+        this.dateHasError = false;
+
+        this.data = formatedDate;
+
+        if (this.data && this.data.length < 10)
+            return;
+
+        let dateWithoutBar = this.data.split('/').join('');
+
+        let day = dateWithoutBar.substring(0, 2);
+        let month = dateWithoutBar.substring(2, 4);
+        let year = dateWithoutBar.substring(4, dateWithoutBar.length);
+
+        if (!validateDate(day, month, year)) {
+            this.headerInputCalendar = 'Entre com a data';
+            this.dateHasError = true;
+            return;
+        }
+
+        let data = new Date(+year, +month, +day);
+
+        this.currentDay = data.getDate();
+        this.currentMonth = data.getMonth();
+        this.currentYear = data.getFullYear();
+        this.selectedDate = new Date(this.currentYear, this.currentMonth - 1, this.currentDay);
+
+        this.headerInputCalendar = this.getCurrentFormatedDate()
+    }
+
+    confirm() {
+        let evt = new CustomEvent('dayChanged', {
+            detail: {
+                date: this.selectedDate
+            }
+        });
+
+        window.dispatchEvent(evt);
     }
 
     renderDays() {
@@ -158,7 +219,7 @@ export class CalendarComponent {
             let dateFilter = new Date(this.currentYear, this.currentMonth - 1, i);
             let dayOfTheWeek = dateFilter.getDay();
             let currentDay = today.getDate() == i && dateFilter.getMonth() == today.getMonth() && dateFilter.getFullYear() == today.getFullYear();
-            let selectedDay = this.selectedDate.getMonth() == dateFilter.getMonth() && this.currentDay == i;
+            let selectedDay = this.selectedDate.getMonth() == dateFilter.getMonth() && this.currentDay == i && this.selectedDate.getFullYear() == this.currentYear;
 
             switch (dayOfTheWeek) {
                 case 0:
@@ -189,7 +250,6 @@ export class CalendarComponent {
 
         let monthStartsInDay = new Date(this.currentYear, this.currentMonth - 1, 1);
 
-        // ToDo: find a better way to do this
         if (monthStartsInDay.getDay() != 0) {
             i = 0;
             while (i < monthStartsInDay.getDay()) {
@@ -273,9 +333,22 @@ export class CalendarComponent {
         )
     }
 
-    render() {
-        return [
-            <div class="calendar" onLoad={() => this.registerSwipe()} onClick={(e) => this.keepCalendarOpen(e)}>
+    renderButtons() {
+        return (
+            <div class="btns-calendar">
+                <button onClick={() => this.dismiss()} class="btn-clear btn-secondary">
+                    Cancelar
+                </button>
+                <button onClick={() => this.confirm()} class="btn-clear btn-secondary">
+                    OK
+                </button>
+            </div>
+        );
+    }
+
+    renderCalendar() {
+        return (
+            <div class="calendar">
                 <div class="calendar-header">
                     <div class="selecionar-data-title">
                         <span class="selecionar-data">Selecionar data</span>
@@ -284,40 +357,74 @@ export class CalendarComponent {
                         <div>
                             <span class="calendar-title">{this.getCurrentFormatedDate()}</span>
                         </div>
-                        <div>
+                        <div class="edit-date-background" onClick={() => this.setDateType(DateType.Input)}>
                             <img decoding="async" class="edit-date" src="/assets/svg/edit.svg"></img>
                         </div>
                     </div>
                 </div>
-                <div class="months-changeable">
-                    <div class="year-selector">
-                        <div>
-                            <span class="month-name">{this.renderCurrentMonthName()} {this.currentYear}</span>
+                <div class="calendar-body">
+                    <div class="months-changeable">
+                        <div class="year-selector">
+                            <div>
+                                <span class="month-name">{this.renderCurrentMonthName()} {this.currentYear}</span>
+                            </div>
+                            <div>
+                                <img decoding="async" class="img-select" src="/assets/svg/down-arrow-select.svg"></img>
+                            </div>
                         </div>
-                        <div>
-                            <img decoding="async" class="img-select" src="/assets/svg/down-arrow-select.svg"></img>
+                        <div class="months-img">
+                            <img class="img-arrow img-arrow-left" decoding="async" src="/assets/svg/left-arrow.svg" onClick={() => this.changeDate(-1)}></img>
+                            <img class="img-arrow" decoding="async" src="/assets/svg/right-arrow.svg" onClick={() => this.changeDate(+1)}></img>
                         </div>
                     </div>
-                    <div class="months-img">
-                        <img class="img-arrow img-arrow-left" decoding="async" src="/assets/svg/left-arrow.svg" onClick={(e) => this.changeDate(e, -1)}></img>
-                        <img class="img-arrow" decoding="async" src="/assets/svg/right-arrow.svg" onClick={(e) => this.changeDate(e, +1)}></img>
+                    {
+                        this.segmentSelected == SegmentEnum.Months
+                            ? this.renderMonths()
+                            : this.renderYears()
+                    }
+                    {this.renderButtons()}
+                </div>
+            </div>
+        );
+    }
+
+    renderCalendarInput() {
+        return (
+            <div class="calendar">
+                <div class="calendar-header">
+                    <div class="selecionar-data-title">
+                        <span class="selecionar-data">Digitar data</span>
+                    </div>
+                    <div class="title-background title-input">
+                        <div>
+                            <span class="calendar-title">{this.headerInputCalendar}</span>
+                        </div>
+                        <div class="edit-date-background" onClick={() => this.setDateType(DateType.Calendar)}>
+                            <img decoding="async" class="edit-date" src="/assets/svg/calendar-component.svg"></img>
+                        </div>
                     </div>
                 </div>
-                {
-                    this.segmentSelected == SegmentEnum.Months
-                        ? this.renderMonths()
-                        : this.renderYears()
-                }
-                <div class="btns-calendar">
-                    <button class="btn-clear btn-secondary">
-                        Cancelar
-                    </button>
-                    <button class="btn-clear btn-secondary">
-                        OK
-                    </button>
+                <div class="calendar-body body-input">
+                    <div class="input-background">
+                        <div class="input-outlined">
+                            <input class={`input ${this.dateHasError && 'input-error'}`} onInput={(e) => this.inputDataChange(e)} placeholder="dd/mm/yyyy" value={this.data} maxlength={10} />
+                            <label class="label">Data</label>
+                            {this.dateHasError && <span class="span-error">Data inválida.</span>}
+                        </div>
+                    </div>
+                    {this.renderButtons()}
                 </div>
-            </div>,
-            <div class="calendar-backdrop"></div>
+            </div>
+        )
+    }
+
+    render() {
+        if (this.hidden)
+            return null;
+
+        return [
+            this.dateType == DateType.Calendar ? this.renderCalendar() : this.renderCalendarInput(),
+            <div onClick={() => this.dismiss()} class="calendar-backdrop"></div>
         ];
     }
 }

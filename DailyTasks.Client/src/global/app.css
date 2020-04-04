@@ -9,24 +9,93 @@
 */
 
 body {
-  margin: 0px;
-  padding: 0px;
-  font-family: 'Roboto Condensed', sans-serif;
+	margin: 0px;
+	padding: 0px;
+	font-family: "Roboto Condensed", sans-serif;
 }
 
 .btn-clear {
-  background-color: transparent;
-  border: none;
-  text-transform: uppercase;
-  font-size: 16px;
-  cursor: pointer;
-  color: black;
-  padding: 12px;
-  border-radius: 10px;
-  font-weight: 600;
-  outline: 0 !important;
+	background-color: transparent;
+	border: none;
+	text-transform: uppercase;
+	font-size: 16px;
+	cursor: pointer;
+	color: black;
+	padding: 12px;
+	border-radius: 10px;
+	font-weight: 600;
+	outline: 0 !important;
 }
 
 .btn-clear:hover {
-  background-color: #f4f4f4;
+	background-color: #f4f4f4;
+}
+
+.input-outlined {
+	position: relative;
+}
+
+.input {
+	font-size: 1rem;
+	outline: none;
+	border: 1px solid gray;
+	border-radius: 5px;
+	padding: 1rem 0.7rem;
+	color: gray;
+	transition: 0.1s ease-out;
+	width: calc(100% - 1.4rem);
+	color: black;
+}
+
+.input-error {
+	border-color: red !important;
+}
+
+.input-error + label{
+	color: red !important;
+}
+
+.span-error {
+	color: red;
+	font-size: 13px;
+	margin-left: 12px;
+	margin-top: -4px;
+}
+
+.input:focus {
+	border-color: black;
+}
+
+.input:focus::placeholder {
+	color: grey;
+}
+
+.label {
+	position: absolute;
+	font-size: 1rem;
+	left: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	background-color: white;
+	color: gray;
+	padding: 0 0.3rem;
+	margin: 0 0.5rem;
+	transition: 0.1s ease-out;
+	transform-origin: left top;
+	pointer-events: none;
+}
+
+.input:focus + .label {
+	color: black;
+	top: 0;
+	transform: translateY(-50%) scale(0.9);
+}
+
+.input::placeholder {
+	color: white;
+}
+
+.input:not(:placeholder-shown) + .label {
+	top: 0;
+	transform: translateY(-50%) scale(0.9);
 }
