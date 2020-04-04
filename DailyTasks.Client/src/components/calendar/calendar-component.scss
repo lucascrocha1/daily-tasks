@@ -129,14 +129,6 @@ calendar-component {
 		margin-right: 12px;
 	}
 
-	.year-selector {
-		cursor: pointer;
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		align-items: center;
-	}
-
 	.months {
 		padding: 12px 8px 0 8px;
 	}
@@ -164,7 +156,7 @@ calendar-component {
 		margin-right: 32px;
 	}
 
-	@media (min-width: 760px) {
+	@media (min-width: 650px) {
 		.calendar {
 			display: flex;
 			flex-direction: row;
@@ -202,6 +194,14 @@ calendar-component {
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
+		}
+
+		.months-changeable {
+			margin-top: 0;
+		}
+
+		.btns-calendar {
+			padding-right: 4px;
 		}
 	}
 }

@@ -2,11 +2,6 @@ import { Component, h, State, Prop, Method } from '@stencil/core';
 import calendarService from './calendar-service';
 import { formatDateCalendar, validateDate, maskDate, formatDate } from '../../utils/utils';
 
-enum SegmentEnum {
-    Months = 1,
-    Year = 2
-}
-
 enum DateType {
     Calendar = 1,
     Input = 2
@@ -28,8 +23,6 @@ export class CalendarComponent {
     @State() selectedDate = new Date(this.currentYear, this.currentMonth - 1, this.currentDay);
 
     @State() numberOfDaysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-
-    @State() segmentSelected: SegmentEnum = SegmentEnum.Months;
 
     @State() dateType: DateType = DateType.Calendar;
 
@@ -325,14 +318,6 @@ export class CalendarComponent {
         )
     }
 
-    renderYears() {
-        return (
-            <div>
-
-            </div>
-        )
-    }
-
     renderButtons() {
         return (
             <div class="btns-calendar">
@@ -364,24 +349,15 @@ export class CalendarComponent {
                 </div>
                 <div class="calendar-body">
                     <div class="months-changeable">
-                        <div class="year-selector">
-                            <div>
-                                <span class="month-name">{this.renderCurrentMonthName()} {this.currentYear}</span>
-                            </div>
-                            <div>
-                                <img decoding="async" class="img-select" src="/assets/svg/down-arrow-select.svg"></img>
-                            </div>
+                        <div>
+                            <span class="month-name">{this.renderCurrentMonthName()} {this.currentYear}</span>
                         </div>
                         <div class="months-img">
                             <img class="img-arrow img-arrow-left" decoding="async" src="/assets/svg/left-arrow.svg" onClick={() => this.changeDate(-1)}></img>
                             <img class="img-arrow" decoding="async" src="/assets/svg/right-arrow.svg" onClick={() => this.changeDate(+1)}></img>
                         </div>
                     </div>
-                    {
-                        this.segmentSelected == SegmentEnum.Months
-                            ? this.renderMonths()
-                            : this.renderYears()
-                    }
+                    {this.renderMonths()}
                     {this.renderButtons()}
                 </div>
             </div>
