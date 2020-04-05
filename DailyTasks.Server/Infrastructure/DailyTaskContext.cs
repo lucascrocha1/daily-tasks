@@ -32,6 +32,10 @@
 
             modelBuilder.Entity<DailyTaskComment>();
 
+            modelBuilder.Entity<DailyTaskAttachment>();
+
+            modelBuilder.Entity<DailyTaskCommentAttachment>();
+
             modelBuilder.Entity<DailyTaskChecklist>();
 
             base.OnModelCreating(modelBuilder);

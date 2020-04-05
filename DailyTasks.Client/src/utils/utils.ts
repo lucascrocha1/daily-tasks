@@ -49,3 +49,19 @@ export function maskDate(e: any, value: string) {
 
     return value;
 }
+
+export function getBase64(file: File) {
+    return new Promise<string>((resolve) => {
+        let reader = new FileReader() as any;
+
+        reader.readAsDataURL(file);
+
+        reader.onload = () => {
+            let result = reader.result as string;
+
+            result = result.split(',')[1];
+
+            resolve(result)
+        };
+    });
+}

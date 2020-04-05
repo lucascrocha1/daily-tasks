@@ -1,6 +1,7 @@
 namespace DailyTasks.Server
 {
 	using DailyTasks.Server.Infrastructure;
+	using DailyTasks.Server.Infrastructure.Services.File;
 	using DailyTasks.Server.Infrastructure.Services.User;
 	using FluentValidation.AspNetCore;
 	using MediatR;
@@ -39,6 +40,8 @@ namespace DailyTasks.Server
 			});
 
 			services.AddTransient<IUserService, UserService>();
+
+			services.AddTransient<IFileService, FileService>();
 
 			services.AddSwaggerGen(opts =>
 			{

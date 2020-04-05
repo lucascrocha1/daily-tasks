@@ -68,5 +68,12 @@
         {
             await _mediator.Send(command);
         }
+
+        [HttpPost]
+        [Route("AddComment")]
+        public async Task AddComment([FromBody]AddComment.Command command)
+        {
+            await _mediator.Send(command);
+        }
     }
 }

@@ -1,8 +1,14 @@
 import { Component, h, Prop, State, Listen, Method } from '@stencil/core';
 import dailyTaskService from '../daily-task-service';
 import { Api } from '../../../base/interface';
-import { formatDateAsString } from '../../../utils/utils';
+import { formatDateAsString, getBase64 } from '../../../utils/utils';
 import formValidation from '../../../base/form-validation';
+import Quill from 'quill';
+
+enum SegmentPage {
+    Info = 1,
+    Attachment = 2
+}
 
 @Component({
     tag: 'daily-task-insert-edit',
@@ -14,6 +20,8 @@ export class DailyTaskInsertEdit {
     @State() selectedDate: Date;
 
     @State() attachmentMessage: string = 'Clique ou arraste arquivos';
+
+    @State() segment: SegmentPage = SegmentPage.Info;
 
     @Prop() taskId: number;
 
@@ -29,12 +37,29 @@ export class DailyTaskInsertEdit {
 
     form: HTMLFormElement;
 
+    quillController: any;
+
     componentWillLoad() {
         this.loadState();
     }
 
+    componentDidLoad() {
+        this.registerQuill();
+    }
+
+    registerQuill() {
+        let quillElement = document.getElementById('quill-element');
+
+        this.quillController = new Quill(quillElement, {
+            theme: 'snow'
+        });
+    }
+
     componentDidRender() {
         this.setStateValue();
+
+        if (this.quillController && this.state && this.state.description)
+            this.quillController.setContents(JSON.parse(this.state.description))
     }
 
     @Listen('dayChanged', { target: 'window' })
@@ -66,7 +91,8 @@ export class DailyTaskInsertEdit {
                     description: null,
                     done: false,
                     id: this.getLastChecklistId()
-                }]
+                }],
+                attachments: []
             }
         }
     }
@@ -150,6 +176,11 @@ export class DailyTaskInsertEdit {
     async submit(e) {
         e.preventDefault();
 
+        let text = this.quillController.getText();
+
+        if (text)
+            this.state.description = JSON.stringify(this.quillController.getContents());
+
         formValidation.processRequest(this.form, async () => {
             if (this.taskId)
                 await dailyTaskService.edit(this.state);
@@ -157,8 +188,9 @@ export class DailyTaskInsertEdit {
                 await dailyTaskService.insert(this.state);
 
             location.href = "/";
+
             await this.closeModal();
-        })
+        });
     }
 
     dragEnter() {
@@ -169,15 +201,40 @@ export class DailyTaskInsertEdit {
         this.divFileController.classList.remove('file-drag-enter')
     }
 
-    fileChange(e: any) {
-        let files = e.target.files;
+    async fileChange(e: any) {
+        await this.loaderController.show();
 
-        console.log(files);
+        let files = e.target.files as File[];
+
+        for (let file of files) {
+            let base64 = await getBase64(file);
+
+            this.state.attachments.push({
+                id: null,
+                link: null,
+                fileBase64: base64,
+                fileName: file.name,
+            })
+        }
+
+        this.state = {
+            ...this.state
+        }
+
+        await this.loaderController.dismiss();
     }
 
     async closeModal() {
         formValidation.clearErrors(this.form);
         await this.modalController.dismiss();
+    }
+
+    removeAttachment(attachment: Api.DailyTask.InsertEdit.AttachmentDto) {
+        this.state.attachments = this.state.attachments.filter(e => e != attachment);
+
+        this.state = {
+            ...this.state
+        }
     }
 
     renderChecklist() {
@@ -230,80 +287,85 @@ export class DailyTaskInsertEdit {
         ]
     }
 
+    renderAttachment(attachment: Api.DailyTask.InsertEdit.AttachmentDto) {
+        return (
+            <div class="attachment-item">
+                <span>
+                    {attachment.fileName}
+                </span>
+                <img onClick={() => this.removeAttachment(attachment)} class="remove-attachment" src="/assets/svg/remove-attachment.svg"></img>
+            </div>
+        )
+    }
+
+    renderSegmentAttachment() {
+        return (
+            <div>
+                <label>Anexos</label>
+                <div class="attachment" ref={e => this.divFileController = e as any}>
+                    <div>
+                        <div class="upload-img-background">
+                            <img class="upload-img" src="/assets/svg/upload.svg"></img>
+                        </div>
+                        <div>
+                            <span>{this.attachmentMessage}</span>
+                        </div>
+                    </div>
+                    <input
+                        title="Clique ou arraste arquivos"
+                        ref={e => this.inputFileController = e as any}
+                        type="file"
+                        class="input-file"
+                        multiple
+                        onChange={e => this.fileChange(e)}
+                        onDragEnter={() => this.dragEnter()}
+                        onDragLeave={() => this.dragLeave()}>
+                    </input>
+                </div>
+                <div class="attachments-items">
+                    {this.state.attachments.map(e => this.renderAttachment(e))}
+                </div>
+            </div>
+        )
+    }
+
     renderSegmentInfo() {
         return (
-            <form ref={e => this.form = e as any} novalidate onSubmit={(e) => this.submit(e)}>
-                <div class="daily-task-form">
-                    <div>
-                        <div class="input-outlined">
-                            <input
-                                required
-                                name="title"
-                                placeholder="Title of the task"
-                                value={this.state.description}
-                                class="input"
-                                onChange={(e => this.handleTitleChange(e))}
-                                type="text">
-                            </input>
-                            <label class="label">Title</label>
-                            <error-message name="title"></error-message>
-                        </div>
-                        <div class="input-outlined">
-                            <textarea
-                                required
-                                value={this.state.description}
-                                placeholder="Describe here the task"
-                                maxlength={1000}
-                                onChange={(e) => this.handleDescriptionChange(e)}
-                                class="input textarea"
-                                name="description">
-                            </textarea>
-                            <label class="label">Description</label>
-                            <error-message name="description"></error-message>
-                        </div>
-                        <div class="input-outlined">
-                            <select
-                                name="state"
-                                ref={e => this.selectElement = e as any}
-                                required
-                                onChange={(e) => this.handleSelectChange(e)}
-                                class="input select">
-                                <option value={Api.DailyTask.DailyTaskStateEnum.New as any}>To do</option>
-                                <option value={Api.DailyTask.DailyTaskStateEnum.Active as any}>Doing</option>
-                                <option value={Api.DailyTask.DailyTaskStateEnum.Closed as any}>Done</option>
-                            </select>
-                            <error-message name="state"></error-message>
-                        </div>
-                        {this.renderChecklist()}
-                        <error-message name="checklist"></error-message>
-                    </div>
+            <div>
+                <div class="input-outlined">
+                    <input
+                        required
+                        name="title"
+                        placeholder="Title of the task"
+                        value={this.state.title}
+                        class="input"
+                        onChange={(e => this.handleTitleChange(e))}
+                        type="text">
+                    </input>
+                    <label class="label">Title</label>
+                    <error-message name="title"></error-message>
                 </div>
-                <div>
-                    <label>Anexos</label>
-                    <div class="attachment" ref={e => this.divFileController = e as any}>
-                        <div>
-                            <div class="upload-img-background">
-                                <img class="upload-img" src="/assets/svg/upload.svg"></img>
-                            </div>
-                            <div>
-                                <span>{this.attachmentMessage}</span>
-                            </div>
-                        </div>
-                        <input
-                            title="Clique ou arraste arquivos"
-                            ref={e => this.inputFileController = e as any}
-                            type="file"
-                            class="input-file"
-                            onChange={e => this.fileChange(e)}
-                            onDragEnter={() => this.dragEnter()}
-                            onDragLeave={() => this.dragLeave()}>
-                        </input>
-                    </div>
+                <div class="input-outlined">
+                    <div class="quill-element" id="quill-element"></div>
+                    <input type="hidden" name="description"></input>
+                    <error-message name="description"></error-message>
                 </div>
-                <div class="btn-background">
-                    <button type="submit" class="btn-confirm">Confirm</button>
+                <div class="input-outlined">
+                    <select
+                        name="state"
+                        ref={e => this.selectElement = e as any}
+                        required
+                        onChange={(e) => this.handleSelectChange(e)}
+                        class="input select">
+                        <option value={Api.DailyTask.DailyTaskStateEnum.New as any}>To do</option>
+                        <option value={Api.DailyTask.DailyTaskStateEnum.Active as any}>Doing</option>
+                        <option value={Api.DailyTask.DailyTaskStateEnum.Closed as any}>Done</option>
+                    </select>
+                    <error-message name="state"></error-message>
                 </div>
-            </form>
+                {this.renderChecklist()}
+                <error-message name="checklist"></error-message>
+            </div>
         );
     }
 
@@ -321,8 +383,27 @@ export class DailyTaskInsertEdit {
                         {this.taskId ? 'Edit' : 'Insert'} task
                     </span>
                 </div>
+                <div class="segment">
+                    <div class={`segment-item ${this.segment == SegmentPage.Info && 'segment-selected'}`} onClick={() => this.segment = SegmentPage.Info}>
+                        Informações
+                    </div>
+                    <div class={`segment-item ${this.segment == SegmentPage.Attachment && 'segment-selected'}`} onClick={() => this.segment = SegmentPage.Attachment}>
+                        Anexos
+                    </div>
+                </div>
                 <div class="daily-task-page">
-                    {this.renderSegmentInfo()}
+                    <form ref={e => this.form = e as any} novalidate onSubmit={(e) => this.submit(e)}>
+                        <div class="daily-task-form">
+                            {
+                                this.segment == SegmentPage.Info
+                                    ? this.renderSegmentInfo()
+                                    : this.renderSegmentAttachment()
+                            }
+                            <div class="btn-background">
+                                <button type="submit" class="btn-confirm">Confirm</button>
+                            </div>
+                        </div>
+                    </form >
                 </div>
             </div>,
             <loader-component ref={e => this.loaderController = e as any}></loader-component>

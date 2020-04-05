@@ -48,6 +48,38 @@ daily-task-insert-edit {
         transition: 0.2s;
     }
 
+    .remove-attachment {
+        width: 16px;
+        margin-left: 10px;
+        margin-bottom: -3px;
+        cursor: pointer;
+    }
+
+    .segment-selected {
+        background-color: #f4f4f4;
+    }
+
+    .quill-element {
+        min-height: 250px;
+    }
+
+    .attachment-item {
+        display: inline-block;
+        background-color: #e8e8e8;
+        padding: 8px;
+        border-radius: 10px;
+        margin-bottom: 16px;
+        margin-right: 16px;
+    }
+
+    .attachment-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .attachments-items {
+        margin-top: 16px;
+    }
+
     .segment-item:hover {
         background-color: #e8e8e8;
     }
@@ -87,7 +119,7 @@ daily-task-insert-edit {
 
     .upload-img-background {
         text-align: center;
-        opacity: .7;
+        opacity: 0.7;
         margin-bottom: 8px;
     }
 

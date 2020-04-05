@@ -31,6 +31,8 @@
             public DailyTaskStateEnum State { get; set; }
 
             public ChecklistDto[] Checklists { get; set; }
+
+            public AttachmentDto[] Attachments { get; set; }
         }
 
         public class ChecklistDto
@@ -40,6 +42,17 @@
             public bool Done { get; set; }
 
             public string Description { get; set; }
+        }
+
+        public class AttachmentDto
+        {
+            public int Id { get; set; }
+
+            public string Link { get; set; }
+
+            public string FileName { get; set; }
+
+            public string FilePath { get; set; }
         }
 
         public class CommentsDto
@@ -76,20 +89,28 @@
                         State = e.State,
                         Description = e.Description,
                         Comments = e.Comments.Select(g => new CommentsDto
-                            {
-                                Id = g.Id,
-                                Comment = g.Comment,
-                                CreatedAt = g.CreatedAt,
-                                CreatedBy = g.CreatedBy
-                            })
-                            .ToArray(),
+                        {
+                            Id = g.Id,
+                            Comment = g.Comment,
+                            CreatedAt = g.CreatedAt,
+                            CreatedBy = g.CreatedBy
+                        })
+                        .ToArray(),
                         Checklists = e.Checklists.Select(g => new ChecklistDto
-                            {
-                                Id = g.Id,
-                                Done = g.Done,
-                                Description = g.Description
-                            })
-                            .ToArray()
+                        {
+                            Id = g.Id,
+                            Done = g.Done,
+                            Description = g.Description
+                        })
+                        .ToArray(),
+                        Attachments = e.Attachments.Select(g => new AttachmentDto
+                        {
+                            Id = g.Id,
+                            Link = g.Link,
+                            FileName = g.FileName,
+                            FilePath = g.FilePath
+                        })
+                        .ToArray()
                     })
                     .FirstOrDefaultAsync();
             }

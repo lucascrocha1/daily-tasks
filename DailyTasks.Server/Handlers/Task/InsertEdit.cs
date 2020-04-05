@@ -1,10 +1,12 @@
 ﻿namespace DailyTasks.Server.Handlers.Task
 {
     using DailyTasks.Server.Infrastructure;
+    using DailyTasks.Server.Infrastructure.Services.File;
     using DailyTasks.Server.Infrastructure.Services.User;
     using DailyTasks.Server.Models;
-	using FluentValidation;
-	using MediatR;
+    using FluentValidation;
+    using MediatR;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.EntityFrameworkCore;
     using System;
     using System.Collections.Generic;
@@ -24,9 +26,11 @@
 
             public DateTimeOffset Date { get; set; }
 
+            public DailyTaskStateEnum State { get; set; }
+
             public ChecklistDto[] Checklists { get; set; }
 
-            public DailyTaskStateEnum State { get; set; }
+            public AttachmentDto[] Attachments { get; set; }
         }
 
         public class ChecklistDto
@@ -36,6 +40,17 @@
             public bool Done { get; set; }
 
             public string Description { get; set; }
+        }
+
+        public class AttachmentDto
+        {
+            public int? Id { get; set; }
+
+            public string FileBase64 { get; set; }
+
+            public string FileName { get; set; }
+
+            public string Link { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<Command>
@@ -66,6 +81,9 @@
 
             private bool ChecklistValid(ChecklistDto[] checklists)
             {
+                if (checklists == null || checklists.Count() == 0)
+                    return false;
+
                 var checklistsWithDescription = checklists.Where(e => !string.IsNullOrEmpty(e.Description));
 
                 if (checklistsWithDescription.Any())
@@ -80,12 +98,14 @@
             private readonly DailyTaskContext _context;
             private readonly IUserService _userService;
             private readonly CommandValidator _validator;
+            private readonly IFileService _fileService;
 
-            public CommandHandler(DailyTaskContext context, IUserService userService, CommandValidator validator)
+            public CommandHandler(DailyTaskContext context, IUserService userService, CommandValidator validator, IFileService fileService)
             {
                 _context = context;
                 _userService = userService;
                 _validator = validator;
+                _fileService = fileService;
             }
 
             protected override async Task Handle(Command request, CancellationToken cancellationToken)
@@ -109,11 +129,14 @@
                 else
                     dailyTask = await GetDailyTask(request.Id.Value);
 
-                // ToDo: localize error
                 if (dailyTask == null)
                     throw new ValidationException("Daily task não encontrada");
 
                 MapChanges(dailyTask, request, userId);
+
+                MapChecklist(dailyTask, request, userId);
+
+                await MapAttachment(dailyTask, request, userId);
 
                 await _context.SaveChangesAsync();
             }
@@ -123,6 +146,7 @@
                 return await _context
                     .Set<DailyTask>()
                     .Include(e => e.Checklists)
+                    .Include(e => e.Attachments)
                     .Where(e => e.Id == id)
                     .FirstOrDefaultAsync();
             }
@@ -135,7 +159,10 @@
                 dailyTask.ChangedAt = DateTimeOffset.Now;
                 dailyTask.Description = request.Description;
                 dailyTask.Date = request.Date.StartOfTheDay();
+            }
 
+            private void MapChecklist(DailyTask dailyTask, Command request, string userId)
+            {
                 if (dailyTask.Checklists == null)
                     dailyTask.Checklists = new List<DailyTaskChecklist>();
 
@@ -157,6 +184,7 @@
                         ChangedAt = DateTimeOffset.Now,
                         CreatedAt = DateTimeOffset.Now,
                         Description = item.Description,
+                        CreatedBy = userId
                     });
                 }
 
@@ -168,9 +196,62 @@
                 {
                     var dailyTaskItem = dailyTask.Checklists.FirstOrDefault(e => e.Id == item.Id);
 
-                    dailyTaskItem.Description = item.Description;
                     dailyTaskItem.Done = item.Done;
+                    dailyTaskItem.ChangedBy = userId;
+                    dailyTaskItem.Description = item.Description;
                     dailyTaskItem.ChangedAt = DateTimeOffset.Now;
+                }
+            }
+
+            private async Task MapAttachment(DailyTask dailyTask, Command request, string userId)
+            {
+                if (dailyTask.Attachments == null)
+                    dailyTask.Attachments = new List<DailyTaskAttachment>();
+
+                var attachmentIds = request.Attachments.Where(e => e.Id.HasValue).Select(e => e.Id);
+
+                var removed = dailyTask.Attachments.Where(e => !attachmentIds.Contains(e.Id));
+
+                foreach (var attachment in removed)
+                    await _fileService.RemoveFile(attachment.FilePath);
+
+                dailyTask.Attachments = dailyTask.Attachments.Where(e => !removed.Select(g => g.Id).Contains(e.Id)).ToList();
+
+                var inserted = request.Attachments.Where(e => !e.Id.HasValue);
+
+                foreach (var attachment in inserted)
+                {
+                    var filePath = await _fileService.CreateAndSaveFile(attachment.FileName, attachment.FileBase64);
+
+                    dailyTask.Attachments.Add(new DailyTaskAttachment
+                    {
+                        CreatedBy = userId,
+                        FilePath = filePath,
+                        Link = attachment.Link,
+                        CreatedAt = DateTimeOffset.Now,
+                        FileName = attachment.FileName
+                    });
+                }
+
+                var dailyTaskAttachmentIds = dailyTask.Attachments.Select(e => e.Id);
+
+                var updated = request.Attachments.Where(e => e.Id.HasValue && dailyTaskAttachmentIds.Contains(e.Id.Value));
+
+                foreach (var newAttachment in updated)
+                {
+                    var originalAttachment = dailyTask.Attachments.FirstOrDefault(e => e.Id == newAttachment.Id);
+
+                    if (!string.IsNullOrEmpty(originalAttachment.FilePath) && !string.IsNullOrEmpty(newAttachment.FileBase64))
+                    {
+                        await _fileService.RemoveFile(originalAttachment.FilePath);
+
+                        originalAttachment.FileName = newAttachment.FileName;
+                        originalAttachment.FilePath = await _fileService.CreateAndSaveFile(newAttachment.FileName, newAttachment.FileBase64);
+                    }
+
+                    originalAttachment.ChangedBy = userId;
+                    originalAttachment.Link = newAttachment.Link;
+                    originalAttachment.ChangedAt = DateTimeOffset.Now;
                 }
             }
         }

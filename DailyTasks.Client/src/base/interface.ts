@@ -41,6 +41,7 @@ export module Api {
                 comments: CommentsDto[];
                 state: DailyTaskStateEnum;
                 checklists: ChecklistDto[];
+                attachments: AttachmentDto[];
             }
 
             export interface CommentsDto {
@@ -55,6 +56,13 @@ export module Api {
                 done: boolean;
                 description: string;
             }
+
+            export interface AttachmentDto {
+                id?: number;
+                fileName: string;
+                fileBase64: string;
+                link: string;
+            }
         }
 
         export module InsertEdit {
@@ -65,6 +73,14 @@ export module Api {
                 description: string;
                 state: DailyTaskStateEnum;
                 checklists: ChecklistDto[];
+                attachments: AttachmentDto[];
+            }
+
+            export interface AttachmentDto {
+                id?: number;
+                fileName: string;
+                fileBase64: string;
+                link: string;
             }
 
             export interface ChecklistDto {

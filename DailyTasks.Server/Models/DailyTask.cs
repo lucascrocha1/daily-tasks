@@ -27,8 +27,10 @@
 
         public DateTimeOffset ChangedAt { get; set; }
 
+        public List<DailyTaskComment> Comments { get; set; }
+
         public List<DailyTaskChecklist> Checklists { get; set; }
 
-        public List<DailyTaskComment> Comments { get; set; }
+        public List<DailyTaskAttachment> Attachments { get; set; }
     }
 }
