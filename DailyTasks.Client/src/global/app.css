@@ -45,21 +45,36 @@ body {
 	transition: 0.1s ease-out;
 	width: calc(100% - 1.4rem);
 	color: black;
+	font-family: "Roboto Condensed", sans-serif;
+}
+
+.textarea {
+	resize: none;
+	display: block;
 }
 
 .input-error {
 	border-color: red !important;
 }
 
-.input-error + label{
+.input-error + .label {
 	color: red !important;
+}
+
+.input-error + .input-outlined {
+	margin-bottom: 16px;
 }
 
 .span-error {
 	color: red;
 	font-size: 13px;
 	margin-left: 12px;
-	margin-top: -4px;
+	margin-top: 2px;
+	margin-bottom: 12px;
+}
+
+.select {
+	width: 100%;
 }
 
 .input:focus {

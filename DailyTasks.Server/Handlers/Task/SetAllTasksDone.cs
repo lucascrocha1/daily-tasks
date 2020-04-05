@@ -6,7 +6,8 @@
     using MediatR;
     using Microsoft.EntityFrameworkCore;
     using System;
-    using System.Linq;
+	using System.ComponentModel.DataAnnotations;
+	using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -33,7 +34,7 @@
                 var dailyTask = await GetDailyTask(request.Id);
 
                 if (dailyTask == null)
-                    return;
+                    throw new ValidationException(string.Empty);
 
                 var userId = _userService.GetUserId();
 

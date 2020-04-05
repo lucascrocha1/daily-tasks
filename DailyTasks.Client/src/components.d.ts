@@ -30,6 +30,10 @@ export namespace Components {
     'openClose': (e: any) => Promise<void>;
     'task': Api.DailyTask.List.DailyTaskDto;
   }
+  interface ErrorMessage {
+    'message': string;
+    'name': string;
+  }
   interface HeaderComponent {}
   interface LoaderComponent {
     'dismiss': () => Promise<void>;
@@ -81,6 +85,12 @@ declare global {
     new (): HTMLDailyTaskOptionsElement;
   };
 
+  interface HTMLErrorMessageElement extends Components.ErrorMessage, HTMLStencilElement {}
+  var HTMLErrorMessageElement: {
+    prototype: HTMLErrorMessageElement;
+    new (): HTMLErrorMessageElement;
+  };
+
   interface HTMLHeaderComponentElement extends Components.HeaderComponent, HTMLStencilElement {}
   var HTMLHeaderComponentElement: {
     prototype: HTMLHeaderComponentElement;
@@ -111,6 +121,7 @@ declare global {
     'daily-task-insert-edit': HTMLDailyTaskInsertEditElement;
     'daily-task-list': HTMLDailyTaskListElement;
     'daily-task-options': HTMLDailyTaskOptionsElement;
+    'error-message': HTMLErrorMessageElement;
     'header-component': HTMLHeaderComponentElement;
     'loader-component': HTMLLoaderComponentElement;
     'modal-component': HTMLModalComponentElement;
@@ -133,6 +144,10 @@ declare namespace LocalJSX {
     'onTaskUpdatedEvent'?: (event: CustomEvent<any>) => void;
     'task'?: Api.DailyTask.List.DailyTaskDto;
   }
+  interface ErrorMessage {
+    'message'?: string;
+    'name'?: string;
+  }
   interface HeaderComponent {}
   interface LoaderComponent {}
   interface ModalComponent {}
@@ -145,6 +160,7 @@ declare namespace LocalJSX {
     'daily-task-insert-edit': DailyTaskInsertEdit;
     'daily-task-list': DailyTaskList;
     'daily-task-options': DailyTaskOptions;
+    'error-message': ErrorMessage;
     'header-component': HeaderComponent;
     'loader-component': LoaderComponent;
     'modal-component': ModalComponent;
@@ -164,6 +180,7 @@ declare module "@stencil/core" {
       'daily-task-insert-edit': LocalJSX.DailyTaskInsertEdit & JSXBase.HTMLAttributes<HTMLDailyTaskInsertEditElement>;
       'daily-task-list': LocalJSX.DailyTaskList & JSXBase.HTMLAttributes<HTMLDailyTaskListElement>;
       'daily-task-options': LocalJSX.DailyTaskOptions & JSXBase.HTMLAttributes<HTMLDailyTaskOptionsElement>;
+      'error-message': LocalJSX.ErrorMessage & JSXBase.HTMLAttributes<HTMLErrorMessageElement>;
       'header-component': LocalJSX.HeaderComponent & JSXBase.HTMLAttributes<HTMLHeaderComponentElement>;
       'loader-component': LocalJSX.LoaderComponent & JSXBase.HTMLAttributes<HTMLLoaderComponentElement>;
       'modal-component': LocalJSX.ModalComponent & JSXBase.HTMLAttributes<HTMLModalComponentElement>;

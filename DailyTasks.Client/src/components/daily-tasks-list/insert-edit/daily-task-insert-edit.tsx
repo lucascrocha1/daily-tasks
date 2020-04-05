@@ -2,6 +2,7 @@ import { Component, h, Prop, State, Listen, Method } from '@stencil/core';
 import dailyTaskService from '../daily-task-service';
 import { Api } from '../../../base/interface';
 import { formatDateAsString } from '../../../utils/utils';
+import formValidation from '../../../base/form-validation';
 
 @Component({
     tag: 'daily-task-insert-edit',
@@ -12,6 +13,8 @@ export class DailyTaskInsertEdit {
 
     @State() selectedDate: Date;
 
+    @State() attachmentMessage: string = 'Clique ou arraste arquivos';
+
     @Prop() taskId: number;
 
     @Prop() modalController: HTMLModalComponentElement;
@@ -19,6 +22,12 @@ export class DailyTaskInsertEdit {
     selectElement: HTMLSelectElement;
 
     loaderController: HTMLLoaderComponentElement;
+
+    inputFileController: HTMLInputElement;
+
+    divFileController: HTMLDivElement;
+
+    form: HTMLFormElement;
 
     componentWillLoad() {
         this.loadState();
@@ -56,10 +65,24 @@ export class DailyTaskInsertEdit {
                 checklists: [{
                     description: null,
                     done: false,
-                    id: null
+                    id: this.getLastChecklistId()
                 }]
             }
         }
+    }
+
+    getLastChecklistId() {
+        if (!this.state || !this.state.checklists || !this.state.checklists.length)
+            return -1;
+
+        let lastChecklist = this.state.checklists.reverse()[0];
+
+        let checklistId = lastChecklist.id;
+
+        if (checklistId > 0)
+            checklistId *= -1;
+
+        return checklistId + -5;
     }
 
     handleDescriptionChange(e) {
@@ -83,7 +106,7 @@ export class DailyTaskInsertEdit {
 
     addNewTask() {
         this.state.checklists.push({
-            id: null,
+            id: this.getLastChecklistId(),
             description: null,
             done: false
         })
@@ -105,6 +128,11 @@ export class DailyTaskInsertEdit {
         this.state.state = +e.target.value;
     }
 
+    checkboxChange(e, checkilist: Api.DailyTask.InsertEdit.ChecklistDto) {
+        let checked = e.target.checked;
+        checkilist.done = checked;
+    }
+
     removeTaskItem(e, checklist: Api.DailyTask.InsertEdit.ChecklistDto) {
         e.preventDefault();
         e.stopPropagation();
@@ -120,33 +148,63 @@ export class DailyTaskInsertEdit {
     }
 
     async submit(e) {
-        this.loaderController.show();
-
         e.preventDefault();
 
-        if (this.taskId)
-            await dailyTaskService.edit(this.state);
-        else
-            await dailyTaskService.insert(this.state);
+        formValidation.processRequest(this.form, async () => {
+            if (this.taskId)
+                await dailyTaskService.edit(this.state);
+            else
+                await dailyTaskService.insert(this.state);
 
-        location.href = "/";
+            location.href = "/";
+            await this.closeModal();
+        })
+    }
 
-        this.loaderController.dismiss();
+    dragEnter() {
+        this.divFileController.classList.add('file-drag-enter')
+    }
+
+    dragLeave() {
+        this.divFileController.classList.remove('file-drag-enter')
+    }
+
+    fileChange(e: any) {
+        let files = e.target.files;
+
+        console.log(files);
     }
 
     async closeModal() {
+        formValidation.clearErrors(this.form);
         await this.modalController.dismiss();
-    }   
+    }
 
-    renderChecklist(checklist: Api.DailyTask.InsertEdit.ChecklistDto) {
+    renderChecklist() {
+        return (
+            <div>
+                <div class="task-title-background">
+                    <span>Checklist</span>
+                </div>
+                <div>
+                    {this.state.checklists.map(e => this.renderChecklistDto(e))}
+                </div>
+            </div>
+        );
+    }
+
+    // toggle src: https://proto.io/freebies/onoff/
+    renderChecklistDto(checklist: Api.DailyTask.InsertEdit.ChecklistDto) {
+        let switchId = `switch-${checklist.id}`;
+
         return [
-            <div class="task-item form-group">
+            <div class="checklist-item">
                 <div class="btn-delete-background">
                     <button class="btn-delete-task" onClick={(e) => this.removeTaskItem(e, checklist)}>
                         <img class="img-delete-task" src="/assets/svg/delete.svg"></img>
                     </button>
                 </div>
-                <div>
+                <div class="input-outlined description-checklist">
                     <input
                         placeholder="Description"
                         value={checklist.description}
@@ -154,14 +212,99 @@ export class DailyTaskInsertEdit {
                         onInput={(e => this.handleTaskChange(e, checklist))}
                         type="text">
                     </input>
+                    <label class="label">Description</label>
                 </div>
                 <div class="done-background">
-                    <label class="done-label">Done</label>
-                    <br></br>
-                    <input class="input-checkbox" type="checkbox" checked={checklist.done}></input>
+                    <div class="onoffswitch">
+                        <input
+                            type="checkbox"
+                            onChange={e => this.checkboxChange(e, checklist)}
+                            name="onoffswitch"
+                            class="onoffswitch-checkbox"
+                            checked={checklist.done}
+                            id={switchId} />
+                        <label class="onoffswitch-label" htmlFor={switchId}></label>
+                    </div>
                 </div>
             </div>
         ]
+    }
+
+    renderSegmentInfo() {
+        return (
+            <form ref={e => this.form = e as any} novalidate onSubmit={(e) => this.submit(e)}>
+                <div class="daily-task-form">
+                    <div>
+                        <div class="input-outlined">
+                            <input
+                                required
+                                name="title"
+                                placeholder="Title of the task"
+                                value={this.state.description}
+                                class="input"
+                                onChange={(e => this.handleTitleChange(e))}
+                                type="text">
+                            </input>
+                            <label class="label">Title</label>
+                            <error-message name="title"></error-message>
+                        </div>
+                        <div class="input-outlined">
+                            <textarea
+                                required
+                                value={this.state.description}
+                                placeholder="Describe here the task"
+                                maxlength={1000}
+                                onChange={(e) => this.handleDescriptionChange(e)}
+                                class="input textarea"
+                                name="description">
+                            </textarea>
+                            <label class="label">Description</label>
+                            <error-message name="description"></error-message>
+                        </div>
+                        <div class="input-outlined">
+                            <select
+                                name="state"
+                                ref={e => this.selectElement = e as any}
+                                required
+                                onChange={(e) => this.handleSelectChange(e)}
+                                class="input select">
+                                <option value={Api.DailyTask.DailyTaskStateEnum.New as any}>To do</option>
+                                <option value={Api.DailyTask.DailyTaskStateEnum.Active as any}>Doing</option>
+                                <option value={Api.DailyTask.DailyTaskStateEnum.Closed as any}>Done</option>
+                            </select>
+                            <error-message name="state"></error-message>
+                        </div>
+                        {this.renderChecklist()}
+                        <error-message name="checklist"></error-message>
+                    </div>
+                </div>
+                <div>
+                    <label>Anexos</label>
+                    <div class="attachment" ref={e => this.divFileController = e as any}>
+                        <div>
+                            <div class="upload-img-background">
+                                <img class="upload-img" src="/assets/svg/upload.svg"></img>
+                            </div>
+                            <div>
+                                <span>{this.attachmentMessage}</span>
+                            </div>
+                        </div>
+                        <input
+                            title="Clique ou arraste arquivos"
+                            ref={e => this.inputFileController = e as any}
+                            type="file"
+                            class="input-file"
+                            onChange={e => this.fileChange(e)}
+                            onDragEnter={() => this.dragEnter()}
+                            onDragLeave={() => this.dragLeave()}>
+                        </input>
+                    </div>
+                </div>
+                <div class="btn-background">
+                    <button type="submit" class="btn-confirm">Confirm</button>
+                </div>
+            </form>
+        );
     }
 
     render() {
@@ -176,63 +319,10 @@ export class DailyTaskInsertEdit {
                     </div>
                     <span class="task-header-title">
                         {this.taskId ? 'Edit' : 'Insert'} task
-                </span>
+                    </span>
                 </div>
                 <div class="daily-task-page">
-                    <form onSubmit={(e) => this.submit(e)}>
-                        <div class="daily-task-form">
-                            <div>
-                                <div class="form-group">
-                                    <label>Title</label>
-                                    <input
-                                        required
-                                        value={this.state.title}
-                                        onChange={(e) => this.handleTitleChange(e)}
-                                        class="input"
-                                        type="text">
-                                    </input>
-                                </div>
-                                <div class="form-group">
-                                    <label>Description</label>
-                                    <textarea
-                                        required
-                                        value={this.state.description}
-                                        placeholder="Description"
-                                        maxlength={1000}
-                                        onChange={(e) => this.handleDescriptionChange(e)}
-                                        class="input textarea">
-                                    </textarea>
-                                    <div></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>State</label>
-                                    <select
-                                        ref={e => this.selectElement = e as any}
-                                        required
-                                        onChange={(e) => this.handleSelectChange(e)}
-                                        class="input">
-                                        <option value={Api.DailyTask.DailyTaskStateEnum.New as any}>To do</option>
-                                        <option value={Api.DailyTask.DailyTaskStateEnum.Active as any}>Doing</option>
-                                        <option value={Api.DailyTask.DailyTaskStateEnum.Closed as any}>Done</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <div class="task-title-background">
-                                        <span>Tasks</span>
-                                    </div>
-                                    <div>
-                                        {this.state.checklists.map(e => this.renderChecklist(e))}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="calendar-component">
-                                <calendar-component currentSelectedDate={this.selectedDate}></calendar-component>
-                            </div>
-                        </div>
-                        <div class="btn-background">
-                            <button type="submit" class="btn-confirm">Confirm</button>
-                        </div>
-                    </form>
+                    {this.renderSegmentInfo()}
                 </div>
             </div>,
             <loader-component ref={e => this.loaderController = e as any}></loader-component>

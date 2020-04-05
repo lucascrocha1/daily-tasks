@@ -4,50 +4,12 @@ daily-task-insert-edit {
         background-color: white;
     }
 
-    .input {
-        border: 1px solid #cecece;
-        border-radius: 5px;
-        height: 40px;
-        width: 100%;
-        max-width: 100%;
-        outline: none;
-        font-size: 16px;
-    }
-
-    .input-checkbox {
-        height: 20px;
-        width: 20px;
-        margin-left: 16px;
-    }
-
-    .task-item {
-        display: flex;
-        align-items: center;
-    }
-
-    .btn-delete-background {
-        margin-right: 8px;
-    }
-
     .done-background {
         text-align: center;
     }
 
     .done-label {
         margin-left: 15px;
-    }
-
-    .input:focus {
-        border: 1px solid black;
-    }
-
-    .input::placeholder {
-        font-size: 16px;
-    }
-
-    .textarea {
-        resize: none;
-        height: 150px;
     }
 
     .img-delete-task {
@@ -65,21 +27,111 @@ daily-task-insert-edit {
         background-color: transparent;
     }
 
-    .form-group {
+    .segment {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        height: 40px;
+        border-bottom: 1px solid #cecece;
+    }
+
+    .segment-item {
+        width: 50%;
+        text-align: center;
+        height: 100%;
+        border-right: 1px solid #cecece;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+    }
+
+    .segment-item:hover {
+        background-color: #e8e8e8;
+    }
+
+    .segment-item:last-child {
+        border-right: none;
+    }
+
+    .task-title-background {
         margin-bottom: 16px;
+    }
+
+    .checklist-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .attachment {
+        background-color: #e8e8e8;
+        height: 70px;
+        position: relative;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: 0.3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: 3px solid transparent;
+    }
+
+    .upload-img {
+        width: 24px;
+    }
+
+    .upload-img-background {
+        text-align: center;
+        opacity: .7;
+        margin-bottom: 8px;
+    }
+
+    .attachment:hover {
+        background-color: #bdbbbb;
+    }
+
+    .file-drag-enter {
+        border: 3px solid grey;
+        background-color: #bdbbbb;
+    }
+
+    .input-file {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .span-attachment-title {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: auto;
+        margin-top: -25px;
+        margin-left: -160px;
     }
 
     .btn-confirm {
         height: 40px;
         width: 100%;
-        background-color: #fff275;
+        background-color: #ffeb3b;
         border: 1px solid #cecece;
         border-radius: 10px;
         text-transform: uppercase;
         font-size: 20px;
         font-family: "Roboto Condensed";
         cursor: pointer;
-        transition: .3s;
+        transition: 0.3s;
     }
 
     .btn-confirm:hover {
@@ -88,12 +140,6 @@ daily-task-insert-edit {
 
     .btn-background {
         margin-top: 16px;
-    }
-
-    .daily-task-form {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
     }
 
     .img-cancel {
@@ -110,7 +156,7 @@ daily-task-insert-edit {
         display: flex;
         align-items: center;
         border-bottom: 1px solid #cecece;
-        background-color: #fff275;
+        background-color: #ffeb3b;
     }
 
     .task-header-title {
@@ -118,13 +164,56 @@ daily-task-insert-edit {
         margin-left: 16px;
     }
 
-    @media (max-width: 605px) {
-        .daily-task-form {
-            flex-direction: column;
-        }
+    .onoffswitch {
+        position: relative;
+        width: 40px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
+    .onoffswitch-checkbox {
+        display: none;
+    }
+    .onoffswitch-label {
+        display: block;
+        overflow: hidden;
+        cursor: pointer;
+        height: 15px;
+        padding: 0;
+        line-height: 15px;
+        border: 2px solid #999999;
+        border-radius: 15px;
+        background-color: #eeeeee;
+        transition: background-color 0.3s ease-in;
+    }
+    .onoffswitch-label:before {
+        content: "";
+        display: block;
+        width: 15px;
+        margin: 0px;
+        background: #ffffff;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 23px;
+        border: 2px solid #999999;
+        border-radius: 15px;
+        transition: all 0.3s ease-in 0s;
+    }
+    .onoffswitch-checkbox:checked + .onoffswitch-label {
+        background-color: #6cc251;
+    }
+    .onoffswitch-checkbox:checked + .onoffswitch-label,
+    .onoffswitch-checkbox:checked + .onoffswitch-label:before {
+        border-color: #6cc251;
+    }
+    .onoffswitch-checkbox:checked + .onoffswitch-label:before {
+        right: 0px;
+    }
 
-        .calendar-component {
-            text-align: center;
+    @media (min-width: 620px) {
+        .description-checklist {
+            width: 85%;
         }
     }
 }

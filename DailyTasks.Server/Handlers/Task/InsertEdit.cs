@@ -3,7 +3,8 @@
     using DailyTasks.Server.Infrastructure;
     using DailyTasks.Server.Infrastructure.Services.User;
     using DailyTasks.Server.Models;
-    using MediatR;
+	using FluentValidation;
+	using MediatR;
     using Microsoft.EntityFrameworkCore;
     using System;
     using System.Collections.Generic;
@@ -37,19 +38,60 @@
             public string Description { get; set; }
         }
 
+        public class CommandValidator : AbstractValidator<Command>
+        {
+            public CommandValidator()
+            {
+                Validate();
+            }
+
+            private void Validate()
+            {
+                RuleFor(e => e.Date)
+                    .NotEmpty();
+
+                RuleFor(e => e.Description)
+                    .NotEmpty();
+
+                RuleFor(e => e.State)
+                    .NotEmpty();
+
+                RuleFor(e => e.Title)
+                    .NotEmpty();
+
+                RuleFor(e => e.Checklists)
+                    .NotEmpty()
+                    .Must(ChecklistValid);
+            }
+
+            private bool ChecklistValid(ChecklistDto[] checklists)
+            {
+                var checklistsWithDescription = checklists.Where(e => !string.IsNullOrEmpty(e.Description));
+
+                if (checklistsWithDescription.Any())
+                    return true;
+
+                return false;
+            }
+        }
+
         public class CommandHandler : AsyncRequestHandler<Command>
         {
             private readonly DailyTaskContext _context;
             private readonly IUserService _userService;
+            private readonly CommandValidator _validator;
 
-            public CommandHandler(DailyTaskContext context, IUserService userService)
+            public CommandHandler(DailyTaskContext context, IUserService userService, CommandValidator validator)
             {
                 _context = context;
                 _userService = userService;
+                _validator = validator;
             }
 
             protected override async Task Handle(Command request, CancellationToken cancellationToken)
             {
+                await _validator.ValidateAndThrowAsync(request);
+
                 var userId = _userService.GetUserId();
 
                 DailyTask dailyTask;
@@ -67,8 +109,9 @@
                 else
                     dailyTask = await GetDailyTask(request.Id.Value);
 
+                // ToDo: localize error
                 if (dailyTask == null)
-                    return;
+                    throw new ValidationException("Daily task não encontrada");
 
                 MapChanges(dailyTask, request, userId);
 
@@ -104,7 +147,7 @@
 
                 dailyTask.Checklists = dailyTask.Checklists.Where(e => !removedIds.Contains(e.Id)).ToList();
 
-                var inserted = request.Checklists.Where(e => !e.Id.HasValue);
+                var inserted = request.Checklists.Where(e => !e.Id.HasValue || e.Id < 0);
 
                 foreach (var item in inserted)
                 {

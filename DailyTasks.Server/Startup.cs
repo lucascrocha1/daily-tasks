@@ -2,6 +2,7 @@ namespace DailyTasks.Server
 {
 	using DailyTasks.Server.Infrastructure;
 	using DailyTasks.Server.Infrastructure.Services.User;
+	using FluentValidation.AspNetCore;
 	using MediatR;
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Hosting;
@@ -22,7 +23,13 @@ namespace DailyTasks.Server
 
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddControllers().AddNewtonsoftJson();
+			services
+				.AddControllers()
+				.AddFluentValidation(opts =>
+				{
+					opts.RegisterValidatorsFromAssemblyContaining(typeof(Startup));
+				})
+				.AddNewtonsoftJson();
 
 			services.AddMediatR(typeof(Startup));
 
