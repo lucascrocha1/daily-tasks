@@ -82,6 +82,9 @@ namespace DailyTasks.Server
 			{
 				endpoints.MapControllers();
 			});
+
+			if (env.IsDevelopment())
+				app.UseWelcomePage();
 		}
 	}
 }

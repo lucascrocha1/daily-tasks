@@ -42,8 +42,6 @@ export class DailyTaskList {
     }
 
     async loadState() {
-        this.state = null;
-
         this.state = await dailyTaskService.list({
             date: this.dateFilter, 
             pageIndex: this.pageIndex,
@@ -111,22 +109,6 @@ export class DailyTaskList {
         this.taskOptionsController.openClose(e);
     }
 
-    async expandTasks(e, taskItemId: string, taskImageId: string) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-
-        let element = document.getElementById(taskItemId) as HTMLDivElement;
-        element.hidden = !element.hidden;
-
-        let image = document.getElementById(taskImageId);
-
-        if (element.hidden)
-            image.classList.remove('btn-options-open');
-        else
-            image.classList.add('btn-options-open');
-    }
-
     getTaskColor(state: Api.DailyTask.DailyTaskStateEnum) {
         switch (state) {
             case Api.DailyTask.DailyTaskStateEnum.New:
@@ -140,34 +122,7 @@ export class DailyTaskList {
         }
     }
 
-    getBorderColor(state: Api.DailyTask.DailyTaskStateEnum) {
-        switch (state) {
-            case Api.DailyTask.DailyTaskStateEnum.New:
-                return "border-to-do";
-            case Api.DailyTask.DailyTaskStateEnum.Active:
-                return "border-active";
-            case Api.DailyTask.DailyTaskStateEnum.Closed:
-                return "border-closed";
-            default:
-                return "border-to-do";
-        }
-    }
-
-    renderChecklist(checklist: Api.DailyTask.List.ChecklistDto, state: Api.DailyTask.DailyTaskStateEnum) {
-        return (
-            <div class={`task-item-inner ${this.getBorderColor(state)}`}>
-                <div class="task-item-inner-title">
-                    {checklist.description}
-                </div>
-                {checklist.done && <img class="check-task-done" src="/assets/svg/check.svg"></img>}
-            </div>
-        )
-    }
-
     renderState(task: Api.DailyTask.List.DailyTaskDto) {
-        let taskItemId = `task-item-${task.id}`;
-        let taskImageId = `task-image-${task.id}`;
-
         return [
             <div id={task.id.toString()}
                 title={task.title}
@@ -188,14 +143,6 @@ export class DailyTaskList {
                         {task.quantityTasksDone} / {task.quantityTasks} tarefas feitas
                     </span>
                 </div>
-                <div title="Options" class="btn-down-arrow" onClick={e => this.expandTasks(e, taskItemId, taskImageId)}>
-                    <div class={`options-btn ${this.getTaskColor(task.state)}`}>
-                        <img id={taskImageId} class="options-img" src="/assets/svg/down-arrow.svg"></img>
-                    </div>
-                </div>
-            </div>,
-            <div id={taskItemId} hidden class="task-items-background">
-                {task.checklists.map(e => this.renderChecklist(e, task.state))}
             </div>
         ];
     }
