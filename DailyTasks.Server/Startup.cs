@@ -68,11 +68,15 @@ namespace DailyTasks.Server
 
 			app.UseSwaggerUI(opts =>
 			{
-				opts.RoutePrefix = string.Empty;
+				opts.RoutePrefix = "swagger";
 				opts.SwaggerEndpoint("/swagger/v1/swagger.json", "DailyTasks.Server V1");
 			});
 
 			app.UseRouting();
+
+			app.UseDefaultFiles();
+
+			app.UseStaticFiles();
 
 			app.UseEndpoints(endpoints =>
 			{

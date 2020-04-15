@@ -1,10 +1,10 @@
 import axios, { AxiosInstance } from 'axios';
 import qs from 'qs';
 import dayjs from 'dayjs';
+import env from '../env/env';
 
 class AxiosConfiguration {
     private axiosInstance: AxiosInstance;
-    private apiUrl: string = 'https://localhost:44319/';
 
     constructor() {
         this.configure();
@@ -22,7 +22,7 @@ class AxiosConfiguration {
 
     configureApiUrl() {
         this.axiosInstance = axios.create({
-            baseURL: this.apiUrl
+            baseURL: env.apiUrl
         });
     }
 

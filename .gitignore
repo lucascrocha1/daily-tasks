@@ -10,3 +10,5 @@
 /DailyTasks.Client/.stencil
 /DailyTasks.Client/www
 /DailyTasks.Client/bin/Debug/netcoreapp3.1
+/DailyTasks.Client/src/env/env.ts
+/DailyTasks.Server/wwwroot
