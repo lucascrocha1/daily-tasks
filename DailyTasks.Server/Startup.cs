@@ -1,12 +1,15 @@
 namespace DailyTasks.Server
 {
-	using DailyTasks.Server.Infrastructure;
+	using DailyTasks.Server.Infrastructure.Contexts;
+	using DailyTasks.Server.Infrastructure.IdentityServer;
 	using DailyTasks.Server.Infrastructure.Services.File;
 	using DailyTasks.Server.Infrastructure.Services.User;
+	using DailyTasks.Server.Models;
 	using FluentValidation.AspNetCore;
 	using MediatR;
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Hosting;
+	using Microsoft.AspNetCore.Identity;
 	using Microsoft.EntityFrameworkCore;
 	using Microsoft.Extensions.Configuration;
 	using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +41,23 @@ namespace DailyTasks.Server
 			{
 				opts.UseSqlServer(_configuration.GetConnectionString("DailyTaskConnection"));
 			});
+
+			services.AddDbContext<AuthContext>(opts =>
+			{
+				opts.UseSqlServer(_configuration.GetConnectionString("DailyTaskAuthConnection"));
+			});
+
+			services.AddIdentity<ApplicationUser, IdentityRole>()
+				.AddEntityFrameworkStores<AuthContext>()
+				.AddDefaultTokenProviders();
+
+			services.AddIdentityServer()
+				.AddDeveloperSigningCredential()
+				.AddInMemoryIdentityResources(IdentityServerConfiguration.GetIdentityResources())
+				.AddInMemoryApiResources(IdentityServerConfiguration.GetApiResources())
+				.AddInMemoryClients(IdentityServerConfiguration.GetClients(_configuration))
+				.AddAspNetIdentity<ApplicationUser>()
+				.AddProfileService<ProfileService>();
 
 			services.AddTransient<IUserService, UserService>();
 

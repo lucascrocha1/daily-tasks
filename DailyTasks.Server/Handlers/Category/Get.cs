@@ -1,6 +1,6 @@
 ﻿namespace DailyTasks.Server.Handlers.Category
 {
-    using DailyTasks.Server.Infrastructure;
+    using DailyTasks.Server.Infrastructure.Contexts;
     using MediatR;
     using System.Threading;
     using System.Threading.Tasks;

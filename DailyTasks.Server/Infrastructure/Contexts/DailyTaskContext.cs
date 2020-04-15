@@ -1,4 +1,4 @@
-﻿namespace DailyTasks.Server.Infrastructure
+﻿namespace DailyTasks.Server.Infrastructure.Contexts
 {
     using DailyTasks.Server.Models;
     using Microsoft.EntityFrameworkCore;
