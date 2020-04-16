@@ -2,6 +2,7 @@ namespace DailyTasks.Server
 {
 	using DailyTasks.Server.Infrastructure.Contexts;
 	using DailyTasks.Server.Infrastructure.IdentityServer;
+	using DailyTasks.Server.Infrastructure.Services.Email;
 	using DailyTasks.Server.Infrastructure.Services.File;
 	using DailyTasks.Server.Infrastructure.Services.User;
 	using DailyTasks.Server.Models;
@@ -47,6 +48,15 @@ namespace DailyTasks.Server
 				opts.UseSqlServer(_configuration.GetConnectionString("DailyTaskAuthConnection"));
 			});
 
+			services.Configure<IdentityOptions>(opts =>
+			{
+				opts.Password.RequireDigit = true;
+				opts.Password.RequiredLength = 8;
+				opts.Password.RequireLowercase = true;
+				opts.Password.RequireUppercase = true;
+				opts.Password.RequireNonAlphanumeric = true;
+			});
+
 			services.AddIdentity<ApplicationUser, IdentityRole>()
 				.AddEntityFrameworkStores<AuthContext>()
 				.AddDefaultTokenProviders();
@@ -62,6 +72,8 @@ namespace DailyTasks.Server
 			services.AddTransient<IUserService, UserService>();
 
 			services.AddTransient<IFileService, FileService>();
+
+			services.AddTransient<IEmailService, EmailService>();
 
 			services.AddSwaggerGen(opts =>
 			{

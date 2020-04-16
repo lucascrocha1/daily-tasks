@@ -20,6 +20,7 @@ export namespace Components {
     'show': () => Promise<void>;
   }
   interface CategoryList {}
+  interface CreateUser {}
   interface DailyTaskInsertEdit {
     'loadState': () => Promise<void>;
     'modalController': HTMLModalComponentElement;
@@ -65,6 +66,12 @@ declare global {
   var HTMLCategoryListElement: {
     prototype: HTMLCategoryListElement;
     new (): HTMLCategoryListElement;
+  };
+
+  interface HTMLCreateUserElement extends Components.CreateUser, HTMLStencilElement {}
+  var HTMLCreateUserElement: {
+    prototype: HTMLCreateUserElement;
+    new (): HTMLCreateUserElement;
   };
 
   interface HTMLDailyTaskInsertEditElement extends Components.DailyTaskInsertEdit, HTMLStencilElement {}
@@ -118,6 +125,7 @@ declare global {
     'app-root': HTMLAppRootElement;
     'calendar-component': HTMLCalendarComponentElement;
     'category-list': HTMLCategoryListElement;
+    'create-user': HTMLCreateUserElement;
     'daily-task-insert-edit': HTMLDailyTaskInsertEditElement;
     'daily-task-list': HTMLDailyTaskListElement;
     'daily-task-options': HTMLDailyTaskOptionsElement;
@@ -135,6 +143,7 @@ declare namespace LocalJSX {
     'currentSelectedDate'?: Date;
   }
   interface CategoryList {}
+  interface CreateUser {}
   interface DailyTaskInsertEdit {
     'modalController'?: HTMLModalComponentElement;
     'taskId'?: number;
@@ -157,6 +166,7 @@ declare namespace LocalJSX {
     'app-root': AppRoot;
     'calendar-component': CalendarComponent;
     'category-list': CategoryList;
+    'create-user': CreateUser;
     'daily-task-insert-edit': DailyTaskInsertEdit;
     'daily-task-list': DailyTaskList;
     'daily-task-options': DailyTaskOptions;
@@ -177,6 +187,7 @@ declare module "@stencil/core" {
       'app-root': LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
       'calendar-component': LocalJSX.CalendarComponent & JSXBase.HTMLAttributes<HTMLCalendarComponentElement>;
       'category-list': LocalJSX.CategoryList & JSXBase.HTMLAttributes<HTMLCategoryListElement>;
+      'create-user': LocalJSX.CreateUser & JSXBase.HTMLAttributes<HTMLCreateUserElement>;
       'daily-task-insert-edit': LocalJSX.DailyTaskInsertEdit & JSXBase.HTMLAttributes<HTMLDailyTaskInsertEditElement>;
       'daily-task-list': LocalJSX.DailyTaskList & JSXBase.HTMLAttributes<HTMLDailyTaskListElement>;
       'daily-task-options': LocalJSX.DailyTaskOptions & JSXBase.HTMLAttributes<HTMLDailyTaskOptionsElement>;

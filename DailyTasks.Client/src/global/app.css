@@ -17,6 +17,12 @@ body {
 	font-family: "Roboto Condensed", sans-serif;
 }
 
+.container {
+	margin: 0 auto;
+	height: 100%;
+	max-width: 1140px;
+}
+
 .btn-clear {
 	background-color: transparent;
 	border: none;

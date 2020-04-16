@@ -43,7 +43,7 @@ export class DailyTaskList {
 
     async loadState() {
         this.state = await dailyTaskService.list({
-            date: this.dateFilter, 
+            date: this.dateFilter,
             pageIndex: this.pageIndex,
             pageSize: this.pageSize
         });
@@ -185,6 +185,7 @@ export class DailyTaskList {
         let done = this.state.filter(e => e.state == Api.DailyTask.DailyTaskStateEnum.Closed)
 
         return [
+            <header-component></header-component>,
             <div class="tasks">
                 <div class="task-self"
                     id={Api.DailyTask.DailyTaskStateEnum.New.toString()}
