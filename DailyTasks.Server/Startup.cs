@@ -1,7 +1,6 @@
 namespace DailyTasks.Server
 {
 	using DailyTasks.Server.Infrastructure.Contexts;
-	using DailyTasks.Server.Infrastructure.IdentityServer;
 	using DailyTasks.Server.Infrastructure.Services.Email;
 	using DailyTasks.Server.Infrastructure.Services.File;
 	using DailyTasks.Server.Infrastructure.Services.User;
@@ -61,19 +60,6 @@ namespace DailyTasks.Server
 				.AddEntityFrameworkStores<AuthContext>()
 				.AddDefaultTokenProviders();
 
-			services.AddAuthentication();
-
-			services.AddIdentityServer(opts =>
-				{
-					opts.UserInteraction.LoginUrl = _configuration["AuthRedirectUri"];
-				})
-				.AddDeveloperSigningCredential()
-				.AddInMemoryIdentityResources(IdentityServerConfiguration.GetIdentityResources())
-				.AddInMemoryApiResources(IdentityServerConfiguration.GetApiResources())
-				.AddInMemoryClients(IdentityServerConfiguration.GetClients(_configuration))
-				.AddAspNetIdentity<ApplicationUser>()
-				.AddProfileService<ProfileService>();
-
 			services.AddTransient<IUserService, UserService>();
 
 			services.AddTransient<IFileService, FileService>();
@@ -111,15 +97,16 @@ namespace DailyTasks.Server
 
 			app.UseRouting();
 
-			app.UseDefaultFiles();
+			if (env.IsProduction())
+			{
+				app.UseDefaultFiles();
 
-			app.UseStaticFiles();
+				app.UseStaticFiles();
+			}
 
 			app.UseAuthentication();
 
 			app.UseAuthorization();
-
-			app.UseIdentityServer();
 
 			app.UseEndpoints(endpoints =>
 			{
