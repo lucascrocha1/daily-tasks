@@ -40,6 +40,7 @@ export namespace Components {
     'dismiss': () => Promise<void>;
     'show': () => Promise<void>;
   }
+  interface LoginPage {}
   interface ModalComponent {
     'dismiss': () => Promise<void>;
     'present': () => Promise<void>;
@@ -110,6 +111,12 @@ declare global {
     new (): HTMLLoaderComponentElement;
   };
 
+  interface HTMLLoginPageElement extends Components.LoginPage, HTMLStencilElement {}
+  var HTMLLoginPageElement: {
+    prototype: HTMLLoginPageElement;
+    new (): HTMLLoginPageElement;
+  };
+
   interface HTMLModalComponentElement extends Components.ModalComponent, HTMLStencilElement {}
   var HTMLModalComponentElement: {
     prototype: HTMLModalComponentElement;
@@ -132,6 +139,7 @@ declare global {
     'error-message': HTMLErrorMessageElement;
     'header-component': HTMLHeaderComponentElement;
     'loader-component': HTMLLoaderComponentElement;
+    'login-page': HTMLLoginPageElement;
     'modal-component': HTMLModalComponentElement;
     'spinner-component': HTMLSpinnerComponentElement;
   }
@@ -159,6 +167,7 @@ declare namespace LocalJSX {
   }
   interface HeaderComponent {}
   interface LoaderComponent {}
+  interface LoginPage {}
   interface ModalComponent {}
   interface SpinnerComponent {}
 
@@ -173,6 +182,7 @@ declare namespace LocalJSX {
     'error-message': ErrorMessage;
     'header-component': HeaderComponent;
     'loader-component': LoaderComponent;
+    'login-page': LoginPage;
     'modal-component': ModalComponent;
     'spinner-component': SpinnerComponent;
   }
@@ -194,6 +204,7 @@ declare module "@stencil/core" {
       'error-message': LocalJSX.ErrorMessage & JSXBase.HTMLAttributes<HTMLErrorMessageElement>;
       'header-component': LocalJSX.HeaderComponent & JSXBase.HTMLAttributes<HTMLHeaderComponentElement>;
       'loader-component': LocalJSX.LoaderComponent & JSXBase.HTMLAttributes<HTMLLoaderComponentElement>;
+      'login-page': LocalJSX.LoginPage & JSXBase.HTMLAttributes<HTMLLoginPageElement>;
       'modal-component': LocalJSX.ModalComponent & JSXBase.HTMLAttributes<HTMLModalComponentElement>;
       'spinner-component': LocalJSX.SpinnerComponent & JSXBase.HTMLAttributes<HTMLSpinnerComponentElement>;
     }

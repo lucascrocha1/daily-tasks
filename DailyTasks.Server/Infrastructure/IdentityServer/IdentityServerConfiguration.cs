@@ -41,7 +41,8 @@
                     AllowedScopes =
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile
+                        IdentityServerConstants.StandardScopes.Profile,
+                        "daily-task-login"
                     },
                     RedirectUris = { _configuration["AuthRedirectUri"] },
                     AllowedCorsOrigins = { _configuration["AuthRedirectUri"] },

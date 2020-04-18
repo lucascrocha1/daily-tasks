@@ -2,11 +2,13 @@
 {
 	using DailyTasks.Server.Handlers.Task;
 	using MediatR;
+	using Microsoft.AspNetCore.Authorization;
 	using Microsoft.AspNetCore.Mvc;
 	using System.Threading.Tasks;
 
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
 	public class TaskController : ControllerBase
     {
         private readonly IMediator _mediator;

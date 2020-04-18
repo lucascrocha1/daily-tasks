@@ -61,7 +61,12 @@ namespace DailyTasks.Server
 				.AddEntityFrameworkStores<AuthContext>()
 				.AddDefaultTokenProviders();
 
-			services.AddIdentityServer()
+			services.AddAuthentication();
+
+			services.AddIdentityServer(opts =>
+				{
+					opts.UserInteraction.LoginUrl = _configuration["AuthRedirectUri"];
+				})
 				.AddDeveloperSigningCredential()
 				.AddInMemoryIdentityResources(IdentityServerConfiguration.GetIdentityResources())
 				.AddInMemoryApiResources(IdentityServerConfiguration.GetApiResources())
@@ -110,13 +115,16 @@ namespace DailyTasks.Server
 
 			app.UseStaticFiles();
 
+			app.UseAuthentication();
+
+			app.UseAuthorization();
+
+			app.UseIdentityServer();
+
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
 			});
-
-			if (env.IsDevelopment())
-				app.UseWelcomePage();
 		}
 	}
 }
