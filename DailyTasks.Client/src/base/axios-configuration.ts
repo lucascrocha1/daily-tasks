@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import qs from 'qs';
 import dayjs from 'dayjs';
 import env from '../env/env';
+import authService from './auth-service';
 
 class AxiosConfiguration {
     private axiosInstance: AxiosInstance;
@@ -21,14 +22,24 @@ class AxiosConfiguration {
     }
 
     configureApiUrl() {
+        let token = authService.getToken();
+
         this.axiosInstance = axios.create({
-            baseURL: env.apiUrl
+            baseURL: env.apiUrl,
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
     }
 
     configureInterceptor() {
-        this.axiosInstance.interceptors.response.use(null, (err) => {
-            throw err.response;
+        this.axiosInstance.interceptors.response.use(null, (err: any) => {
+            if (err.response.status == 401) {
+                authService.removeToken();
+                window.location.href = '/';
+            } else {
+                throw err.response;
+            }
         });
     }
 

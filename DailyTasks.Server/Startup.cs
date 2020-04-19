@@ -1,6 +1,8 @@
 namespace DailyTasks.Server
 {
+	using DailyTasks.Server.Infrastructure.Auth;
 	using DailyTasks.Server.Infrastructure.Contexts;
+	using DailyTasks.Server.Infrastructure.Services.Auth;
 	using DailyTasks.Server.Infrastructure.Services.Email;
 	using DailyTasks.Server.Infrastructure.Services.File;
 	using DailyTasks.Server.Infrastructure.Services.User;
@@ -47,6 +49,8 @@ namespace DailyTasks.Server
 				opts.UseSqlServer(_configuration.GetConnectionString("DailyTaskAuthConnection"));
 			});
 
+			services.AddAuth(_configuration);
+
 			services.Configure<IdentityOptions>(opts =>
 			{
 				opts.Password.RequireDigit = true;
@@ -66,6 +70,8 @@ namespace DailyTasks.Server
 
 			services.AddTransient<IEmailService, EmailService>();
 
+			services.AddTransient<IAuthService, AuthService>();
+
 			services.AddSwaggerGen(opts =>
 			{
 				opts.CustomSchemaIds(e => e.FullName);
@@ -78,6 +84,11 @@ namespace DailyTasks.Server
 			});
 
 			services.AddCors(opts => opts.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+
+			services.AddAuthorization(opts =>
+			{
+				opts.AddPolicy(AuthConstants.AuthorizationPolicy, policy => policy.RequireClaim(AuthConstants.JwtClaimRol, AuthConstants.JwtClaimApiAccess));
+			});
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -91,7 +102,7 @@ namespace DailyTasks.Server
 
 			app.UseSwaggerUI(opts =>
 			{
-				opts.RoutePrefix = "swagger";
+				opts.RoutePrefix = env.IsProduction() ? "swagger" : string.Empty;
 				opts.SwaggerEndpoint("/swagger/v1/swagger.json", "DailyTasks.Server V1");
 			});
 
@@ -104,9 +115,9 @@ namespace DailyTasks.Server
 				app.UseStaticFiles();
 			}
 
-			app.UseAuthentication();
-
 			app.UseAuthorization();
+
+			app.UseAuthentication();
 
 			app.UseEndpoints(endpoints =>
 			{

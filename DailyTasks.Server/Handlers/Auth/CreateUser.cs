@@ -1,4 +1,4 @@
-﻿namespace DailyTasks.Server.Handlers.User
+﻿namespace DailyTasks.Server.Handlers.Auth
 {
     using DailyTasks.Server.Infrastructure.Services.Email;
     using DailyTasks.Server.Infrastructure.Services.File;
@@ -50,7 +50,8 @@
                 RuleFor(e => e.Email)
                     .NotEmpty()
                     .EmailAddress()
-                    .MustAsync(UniqueEmail);
+                    .MustAsync(UniqueEmail)
+                    .When(e => !string.IsNullOrEmpty(e.Email));
             }
 
             private async Task<bool> UniqueEmail(string email, CancellationToken cancellationToken)

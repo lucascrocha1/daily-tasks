@@ -1,6 +1,7 @@
 ﻿namespace DailyTasks.Server.Controllers
 {
 	using DailyTasks.Server.Handlers.Task;
+	using DailyTasks.Server.Infrastructure.Auth;
 	using MediatR;
 	using Microsoft.AspNetCore.Authorization;
 	using Microsoft.AspNetCore.Mvc;

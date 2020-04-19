@@ -1,6 +1,7 @@
 import { Component, h } from '@stencil/core';
 import formValidation from '../../base/form-validation';
 import loginService from './login-service';
+import authService from '../../base/auth-service';
 
 @Component({
     tag: 'login-page'
@@ -18,7 +19,11 @@ export class LoginPage {
         this.state.returnUrl = returnUrl;
 
         formValidation.processRequest(this.form, async () => {
-            await loginService.login(this.state);
+            let token = await loginService.login(this.state);
+
+            authService.setToken(token);
+
+            location.reload();
         });
     }
 

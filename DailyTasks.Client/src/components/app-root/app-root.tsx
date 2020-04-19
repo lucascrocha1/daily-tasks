@@ -9,11 +9,13 @@ export class AppRoot {
 
 	@State() isAuthenticated: boolean = false;
 
-	async componentWillLoad() {
-		this.isAuthenticated = await authService.verifyAuthentication();
+	componentWillLoad() {
+		this.isAuthenticated = authService.getToken();
 		
 		if (!this.isAuthenticated)
 			return;
+
+			authService.getDecodedToken();
 	}
 
 	renderAuthenticatedRoutes() {

@@ -5,27 +5,25 @@
 	"description": "Stencil App Starter",
 	"scripts": {
 		"build": "npm run env.prod && stencil build && npm run copy.build",
-		"start": "npm run copy-watch | (npm run env.dev && stencil build --dev --watch --serve)",
+		"start": "npm run env.dev && stencil build --dev --watch --serve",
 		"test": "stencil test --spec --e2e",
 		"test.watch": "stencil test --spec --e2e --watchAll",
 		"generate": "stencil generate",
 		"env.dev": "node ./src/env/env-dev-task.js",
 		"env.prod": "node ./src/env/env-prod-task.js",
-		"copy.build": "node copy-build.js",
-		"copy-watch": "cpx ./www/**/* ../DailyTasks.Server/wwwroot --watch --clean"
+		"copy.build": "node copy-build.js"
 	},
 	"devDependencies": {
 		"@stencil/core": "^1.8.8",
 		"@stencil/router": "^1.0.1",
-		"cpx": "^1.5.0",
 		"ncp": "^2.0.0"
 	},
 	"license": "MIT",
 	"dependencies": {
-		"axios": "^0.19.2",
 		"@stencil/sass": "^1.1.1",
+		"axios": "^0.19.2",
 		"dayjs": "^1.8.23",
-		"oidc-client": "^1.10.1",
+		"jwt-decode": "^2.2.0",
 		"qs": "^6.9.3",
 		"quill": "^1.3.7"
 	}

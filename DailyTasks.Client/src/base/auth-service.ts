@@ -1,72 +1,36 @@
-import OIDC from 'oidc-client';
-import env from '../env/env';
+import jwt_decode from 'jwt-decode';
 
 class AuthService {
-    token = `${env.auth.clientId}-token`;
+    token = 'auth_token_daily_task';
 
-    authService: OIDC.UserManager = new OIDC.UserManager({
-        scope: env.auth.scope,
-        client_id: env.auth.clientId,
-        authority: env.auth.authority,
-        redirect_uri: env.auth.redirectUri,
-        response_type: env.auth.responseType,
-        post_logout_redirect_uri: env.auth.postLogoutRedirectUri,
-        revokeAccessTokenOnSignout: env.auth.revokeAccessTokenOnSignout
-    });
+    getDecodedToken() {
+        let token = this.getToken();
 
-    constructor() {
-        OIDC.Log.logger = console;
+        if (!token)
+            return null;
 
-        this.authService.events.addUserLoaded((user: OIDC.User) => {
-            this.setUser(user);
-        });
+        let tokenDecoded = jwt_decode(token);
 
-        this.authService.events.addUserSignedOut(() => {
-            this.removeUser();
-        });
+        console.log(tokenDecoded);
+
+        return tokenDecoded;
     }
 
-    async verifyAuthentication() {
-        let hasNewAuthToken = location.href.includes('#id_token');
+    getToken() {
+        let token = localStorage.getItem(this.token);
 
-        if (hasNewAuthToken) {
-            let user = await this.authService.signinRedirectCallback();
+        if (!token)
+            return null;
 
-            this.setUser(user);
-
-            location.hash = '';
-
-            return true;
-        } else {
-            let user = this.getUser();
-
-            if (!user) {
-                // if (location.origin != location.href && !location.href.includes('returnUrl')) {
-                //     await this.authService.signinRedirect();
-                // }
-
-                return false;
-            }
-
-            return true;
-        }
+        return JSON.parse(token);
     }
 
-    getUser(): OIDC.User {
-        let user = localStorage.getItem(this.token);
-
-        if (!user)
-            return null
-
-        return JSON.parse(user);
+    setToken(token: string) {
+        localStorage.setItem(this.token, JSON.stringify(token));
     }
 
-    private removeUser() {
+    removeToken() {
         localStorage.removeItem(this.token);
-    }
-
-    private setUser(user: OIDC.User) {
-        localStorage.setItem(this.token, JSON.stringify(user));
     }
 }
 
