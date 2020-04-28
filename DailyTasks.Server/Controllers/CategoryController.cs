@@ -1,15 +1,13 @@
 ﻿namespace DailyTasks.Server.Controllers
 {
-	using DailyTasks.Server.Handlers.Category;
-	using DailyTasks.Server.Infrastructure.Auth;
-	using MediatR;
-	using Microsoft.AspNetCore.Authorization;
-	using Microsoft.AspNetCore.Mvc;
-	using System.Threading.Tasks;
+    using DailyTasks.Server.Handlers.Category;
+    using MediatR;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using System.Threading.Tasks;
 
-	[ApiController]
+    [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = AuthConstants.AuthorizationPolicy)]
     public class CategoryController : ControllerBase
     {
         private readonly IMediator _mediator;

@@ -1,17 +1,13 @@
 namespace DailyTasks.Server
 {
-	using DailyTasks.Server.Infrastructure.Auth;
 	using DailyTasks.Server.Infrastructure.Contexts;
-	using DailyTasks.Server.Infrastructure.Services.Auth;
 	using DailyTasks.Server.Infrastructure.Services.Email;
 	using DailyTasks.Server.Infrastructure.Services.File;
 	using DailyTasks.Server.Infrastructure.Services.User;
-	using DailyTasks.Server.Models;
 	using FluentValidation.AspNetCore;
 	using MediatR;
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Hosting;
-	using Microsoft.AspNetCore.Identity;
 	using Microsoft.EntityFrameworkCore;
 	using Microsoft.Extensions.Configuration;
 	using Microsoft.Extensions.DependencyInjection;
@@ -44,33 +40,13 @@ namespace DailyTasks.Server
 				opts.UseSqlServer(_configuration.GetConnectionString("DailyTaskConnection"));
 			});
 
-			services.AddDbContext<AuthContext>(opts =>
-			{
-				opts.UseSqlServer(_configuration.GetConnectionString("DailyTaskAuthConnection"));
-			});
-
-			services.AddAuth(_configuration);
-
-			services.Configure<IdentityOptions>(opts =>
-			{
-				opts.Password.RequireDigit = true;
-				opts.Password.RequiredLength = 8;
-				opts.Password.RequireLowercase = true;
-				opts.Password.RequireUppercase = true;
-				opts.Password.RequireNonAlphanumeric = true;
-			});
-
-			services.AddIdentity<ApplicationUser, IdentityRole>()
-				.AddEntityFrameworkStores<AuthContext>()
-				.AddDefaultTokenProviders();
+			services.AddHttpContextAccessor();
 
 			services.AddTransient<IUserService, UserService>();
 
 			services.AddTransient<IFileService, FileService>();
 
 			services.AddTransient<IEmailService, EmailService>();
-
-			services.AddTransient<IAuthService, AuthService>();
 
 			services.AddSwaggerGen(opts =>
 			{
@@ -84,11 +60,6 @@ namespace DailyTasks.Server
 			});
 
 			services.AddCors(opts => opts.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
-
-			services.AddAuthorization(opts =>
-			{
-				opts.AddPolicy(AuthConstants.AuthorizationPolicy, policy => policy.RequireClaim(AuthConstants.JwtClaimRol, AuthConstants.JwtClaimApiAccess));
-			});
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -106,6 +77,8 @@ namespace DailyTasks.Server
 				opts.SwaggerEndpoint("/swagger/v1/swagger.json", "DailyTasks.Server V1");
 			});
 
+			app.UseHttpsRedirection();
+
 			app.UseRouting();
 
 			if (env.IsProduction())
@@ -115,14 +88,13 @@ namespace DailyTasks.Server
 				app.UseStaticFiles();
 			}
 
-			app.UseAuthorization();
-
-			app.UseAuthentication();
-
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
 			});
+
+			if (env.IsDevelopment())
+				app.UseWelcomePage();
 		}
 	}
 }

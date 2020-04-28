@@ -1,16 +1,13 @@
 ﻿namespace DailyTasks.Server.Controllers
 {
-	using DailyTasks.Server.Handlers.Task;
-	using DailyTasks.Server.Infrastructure.Auth;
-	using MediatR;
-	using Microsoft.AspNetCore.Authorization;
-	using Microsoft.AspNetCore.Mvc;
-	using System.Threading.Tasks;
+    using DailyTasks.Server.Handlers.Task;
+    using MediatR;
+    using Microsoft.AspNetCore.Mvc;
+    using System.Threading.Tasks;
 
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
-	public class TaskController : ControllerBase
+    public class TaskController : ControllerBase
     {
         private readonly IMediator _mediator;
 
