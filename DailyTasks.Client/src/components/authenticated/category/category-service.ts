@@ -1,5 +1,5 @@
-import { Api } from '../../base/interface';
-import axiosConfiguration from '../../base/axios-configuration';
+import { Api } from '../../../base/interface';
+import axiosConfiguration from '../../../base/axios-configuration';
 
 class CategoryService {
     axios = axiosConfiguration.getAxios();

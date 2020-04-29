@@ -1,5 +1,5 @@
 import { Component, h, State } from '@stencil/core';
-import { Api } from '../../../base/interface';
+import { Api } from '../../../../base/interface';
 import categoryService from '../category-service';
 
 @Component({

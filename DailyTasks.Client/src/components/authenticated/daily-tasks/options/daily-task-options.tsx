@@ -1,7 +1,7 @@
 import { Component, h, Prop, Method, State, Event } from '@stencil/core';
 import dailyTaskService from '../daily-task-service';
 import { EventEmitter } from '@stencil/router/dist/types/stencil.core';
-import { Api } from '../../../base/interface';
+import { Api } from '../../../../base/interface';
 
 @Component({
     tag: 'daily-task-options',

@@ -1,5 +1,4 @@
 import { Component, h, State } from '@stencil/core';
-import authService from '../../base/auth-service';
 
 @Component({
 	tag: 'app-root',
@@ -8,15 +7,6 @@ import authService from '../../base/auth-service';
 export class AppRoot {
 
 	@State() isAuthenticated: boolean = false;
-
-	componentWillLoad() {
-		this.isAuthenticated = authService.getToken();
-		
-		if (!this.isAuthenticated)
-			return;
-
-			authService.getDecodedToken();
-	}
 
 	renderAuthenticatedRoutes() {
 		return [

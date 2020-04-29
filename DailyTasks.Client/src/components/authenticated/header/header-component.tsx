@@ -1,5 +1,5 @@
 import { Component, h, State, Listen } from '@stencil/core';
-import { formatDate } from '../../utils/utils';
+import { formatDate } from '../../../utils/utils';
 
 @Component({
     tag: 'header-component',

@@ -1,8 +1,8 @@
 import { Component, h, Prop, State, Listen, Method } from '@stencil/core';
 import dailyTaskService from '../daily-task-service';
-import { Api } from '../../../base/interface';
-import { formatDateAsString, getBase64 } from '../../../utils/utils';
-import formValidation from '../../../base/form-validation';
+import { Api } from '../../../../base/interface';
+import { formatDateAsString, getBase64 } from '../../../../utils/utils';
+import formValidation from '../../../../base/form-validation';
 import Quill from 'quill';
 
 enum SegmentPage {

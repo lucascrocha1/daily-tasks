@@ -1,5 +1,5 @@
-import axiosConfiguration from '../../base/axios-configuration';
-import { Api } from '../../base/interface';
+import axiosConfiguration from '../../../base/axios-configuration';
+import { Api } from '../../../base/interface';
 
 class DailyTaskService {
     axios = axiosConfiguration.getAxios();

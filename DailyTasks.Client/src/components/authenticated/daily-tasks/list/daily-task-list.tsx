@@ -1,7 +1,7 @@
 import { Component, h, State, Listen } from '@stencil/core';
 import dailyTaskService from '../daily-task-service';
-import { formatDateAsString } from '../../../utils/utils';
-import { Api } from '../../../base/interface';
+import { formatDateAsString } from '../../../../utils/utils';
+import { Api } from '../../../../base/interface';
 
 @Component({
     tag: 'daily-task-list',

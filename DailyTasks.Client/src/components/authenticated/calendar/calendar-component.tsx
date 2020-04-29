@@ -1,6 +1,6 @@
 import { Component, h, State, Prop, Method } from '@stencil/core';
 import calendarService from './calendar-service';
-import { formatDateCalendar, validateDate, maskDate, formatDate } from '../../utils/utils';
+import { formatDateCalendar, validateDate, maskDate, formatDate } from '../../../utils/utils';
 
 enum DateType {
     Calendar = 1,
