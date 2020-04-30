@@ -1,10 +1,11 @@
-import { Component, h, Event, EventEmitter } from '@stencil/core';
+import { Component, h, Event } from '@stencil/core';
+import { EventEmitter } from '@stencil/router/dist/types/stencil.core';
 
 @Component({
-    tag: 'login-page',
-    styleUrl: 'login-page.scss'
+    tag: 'register-page',
+    styleUrl: 'register-page.scss'
 })
-export class LoginPage {
+export class RegisterPage {
     @Event() pageChange: EventEmitter;
 
     renderLoginCard() {
@@ -43,22 +44,11 @@ export class LoginPage {
         )
     }
 
-    renderLinks() {
-        return (
-            <div>
-                <span onClick={() => this.pageChange.emit()}>registrar</span><br/>
-                <span onClick={() => this.pageChange.emit()}>esqueci minha senha</span>
-            </div>
-        )
-    }
-
     renderSidePage() {
         return (
             <div>
                 <div>
-                    <span class="simple-way-text">A simple way to control your day.</span>
-                </div>
-                <div>
+                    <span>A simple way to control your day.</span>
                     <img src="/assets/svg/login-svg.svg" class="login-svg"></img>
                 </div>
             </div>
@@ -66,16 +56,12 @@ export class LoginPage {
     }
 
     render() {
-        return (
-            <div class="login-background">
-                <div class="side-page-background">
-                    {this.renderSidePage()}
-                </div>
-                <div class="login-side-background">
-                    {this.renderLoginCard()}
-                    {this.renderLinks()}
-                </div>
+        return [
+            <div>
+                {this.renderSidePage()}
+                {this.renderLoginCard()}
+                <a onClick={() => this.pageChange.emit()}>login</a>
             </div>
-        )
+        ]
     }
 }

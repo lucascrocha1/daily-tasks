@@ -34,6 +34,8 @@ export namespace Components {
     }
     interface HeaderComponent {
     }
+    interface HomePage {
+    }
     interface LoaderComponent {
         "dismiss": () => Promise<void>;
         "show": () => Promise<void>;
@@ -43,6 +45,8 @@ export namespace Components {
     interface ModalComponent {
         "dismiss": () => Promise<void>;
         "present": () => Promise<void>;
+    }
+    interface RegisterPage {
     }
     interface SpinnerComponent {
     }
@@ -96,6 +100,12 @@ declare global {
         prototype: HTMLHeaderComponentElement;
         new (): HTMLHeaderComponentElement;
     };
+    interface HTMLHomePageElement extends Components.HomePage, HTMLStencilElement {
+    }
+    var HTMLHomePageElement: {
+        prototype: HTMLHomePageElement;
+        new (): HTMLHomePageElement;
+    };
     interface HTMLLoaderComponentElement extends Components.LoaderComponent, HTMLStencilElement {
     }
     var HTMLLoaderComponentElement: {
@@ -114,6 +124,12 @@ declare global {
         prototype: HTMLModalComponentElement;
         new (): HTMLModalComponentElement;
     };
+    interface HTMLRegisterPageElement extends Components.RegisterPage, HTMLStencilElement {
+    }
+    var HTMLRegisterPageElement: {
+        prototype: HTMLRegisterPageElement;
+        new (): HTMLRegisterPageElement;
+    };
     interface HTMLSpinnerComponentElement extends Components.SpinnerComponent, HTMLStencilElement {
     }
     var HTMLSpinnerComponentElement: {
@@ -129,9 +145,11 @@ declare global {
         "daily-task-options": HTMLDailyTaskOptionsElement;
         "error-message": HTMLErrorMessageElement;
         "header-component": HTMLHeaderComponentElement;
+        "home-page": HTMLHomePageElement;
         "loader-component": HTMLLoaderComponentElement;
         "login-page": HTMLLoginPageElement;
         "modal-component": HTMLModalComponentElement;
+        "register-page": HTMLRegisterPageElement;
         "spinner-component": HTMLSpinnerComponentElement;
     }
 }
@@ -159,11 +177,17 @@ declare namespace LocalJSX {
     }
     interface HeaderComponent {
     }
+    interface HomePage {
+    }
     interface LoaderComponent {
     }
     interface LoginPage {
+        "onPageChange"?: (event: CustomEvent<any>) => void;
     }
     interface ModalComponent {
+    }
+    interface RegisterPage {
+        "onPageChange"?: (event: CustomEvent<any>) => void;
     }
     interface SpinnerComponent {
     }
@@ -176,9 +200,11 @@ declare namespace LocalJSX {
         "daily-task-options": DailyTaskOptions;
         "error-message": ErrorMessage;
         "header-component": HeaderComponent;
+        "home-page": HomePage;
         "loader-component": LoaderComponent;
         "login-page": LoginPage;
         "modal-component": ModalComponent;
+        "register-page": RegisterPage;
         "spinner-component": SpinnerComponent;
     }
 }
@@ -194,9 +220,11 @@ declare module "@stencil/core" {
             "daily-task-options": LocalJSX.DailyTaskOptions & JSXBase.HTMLAttributes<HTMLDailyTaskOptionsElement>;
             "error-message": LocalJSX.ErrorMessage & JSXBase.HTMLAttributes<HTMLErrorMessageElement>;
             "header-component": LocalJSX.HeaderComponent & JSXBase.HTMLAttributes<HTMLHeaderComponentElement>;
+            "home-page": LocalJSX.HomePage & JSXBase.HTMLAttributes<HTMLHomePageElement>;
             "loader-component": LocalJSX.LoaderComponent & JSXBase.HTMLAttributes<HTMLLoaderComponentElement>;
             "login-page": LocalJSX.LoginPage & JSXBase.HTMLAttributes<HTMLLoginPageElement>;
             "modal-component": LocalJSX.ModalComponent & JSXBase.HTMLAttributes<HTMLModalComponentElement>;
+            "register-page": LocalJSX.RegisterPage & JSXBase.HTMLAttributes<HTMLRegisterPageElement>;
             "spinner-component": LocalJSX.SpinnerComponent & JSXBase.HTMLAttributes<HTMLSpinnerComponentElement>;
         }
     }

@@ -18,7 +18,7 @@ export class AppRoot {
 
 	renderNonAuthenticatedRoutes() {
 		return [
-			<stencil-route url='/' component='login-page' exact={true} />,
+			<stencil-route url='/' component='home-page' exact={true} />,
 			<stencil-route url='/create/user' component='create-user'></stencil-route>
 		]
 	}
