@@ -8,7 +8,7 @@ export class LoginPage {
     @Event() pageChange: EventEmitter;
 
     renderLoginCard() {
-        return ( 
+        return (
             <div class="card">
                 <div>
                     <div class="input-outlined">
