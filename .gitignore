@@ -3,14 +3,7 @@
 ################################################################################
 
 /.vs
-/DailyTasks.Server/obj
-/DailyTasks.Server/bin/Debug/netcoreapp3.1
-/DailyTasks.Client/obj
-/DailyTasks.Client/node_modules
-/DailyTasks.Client/.stencil
-/DailyTasks.Client/www
-/DailyTasks.Client/bin/Debug/netcoreapp3.1
-/DailyTasks.Client/src/env/env.ts
-/DailyTasks.Server/wwwroot
-/DailyTasks.Test/bin/Debug/netcoreapp3.1
-/DailyTasks.Test/obj
+/DailyTask.Server/bin/Debug/netcoreapp3.1
+/DailyTask.Server/obj
+/DailyTask.Client/bin/Debug/netcoreapp3.1
+/DailyTask.Client/obj
